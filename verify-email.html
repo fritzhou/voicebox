@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Verify Your Email - VoiceBox</title>
-<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="app.css">
 </head>
 <body>
 
@@ -19,7 +19,7 @@
         VoiceBox
       </a>
       <div class="nav-links">
-        <a href="index.html"><span class="label">Home</span></a>
+        <a href="home.html"><span class="label">Home</span></a>
       </div>
     </div>
   </nav>
@@ -53,7 +53,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase-client.js"></script>
+<script src="supabase-client.js"></script>
 <script>
   const params = new URLSearchParams(window.location.search);
   const email = params.get("email") || "";
