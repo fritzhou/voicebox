@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Verify Your Email - VoiceBox</title>
-<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="css/app.css">
 </head>
 <body>
 
@@ -53,41 +53,16 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-client.js"></script>
+<script src="js/supabase-client.js"></script>
 <script>
   const params = new URLSearchParams(window.location.search);
   const email = params.get("email") || "";
 
-  document.getElementById("btnVerified").addEventListener("click", async () => {
-    const button = document.getElementById("btnVerified");
-    setButtonLoading(button, true, "Checking...");
-
-    try {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-
-      if (!session) {
-        setButtonLoading(button, false);
-        document.querySelector("#btnVerified .btn-label").textContent = "I've Verified - Continue";
-        showToast("Please log in again to check your status.");
-        return;
-      }
-
-      const { data, error } = await supabaseClient.auth.getUser(session.access_token);
-      if (error) throw error;
-
-      setButtonLoading(button, false);
-      document.querySelector("#btnVerified .btn-label").textContent = "I've Verified - Continue";
-
-      if (data.user && data.user.email_confirmed_at) {
-        window.location.href = "my-submissions.html";
-      } else {
-        showToast("Your email isn't verified yet. Please check your inbox.");
-      }
-    } catch (err) {
-      setButtonLoading(button, false);
-      document.querySelector("#btnVerified .btn-label").textContent = "I've Verified - Continue";
-      showToast(err.message || "Something went wrong. Please try again.");
-    }
+  document.getElementById("btnVerified").addEventListener("click", () => {
+    showToast("Please log in to continue.");
+    setTimeout(() => {
+      window.location.href = "login.html";
+    }, 1000);
   });
 
   document.getElementById("btnResend").addEventListener("click", async () => {
