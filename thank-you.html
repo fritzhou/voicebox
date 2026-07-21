@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thank You - VoiceBox</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<div class="page">
+
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-brand">
+        <span class="logo-badge">
+          <svg viewBox="0 0 24 24"><path d="M20,2H4C2.9,2,2,2.9,2,4v18l4-4h14c1.1,0,2-0.9,2-2V4C22,2.9,21.1,2,20,2z"/></svg>
+        </span>
+        VoiceBox
+      </a>
+      <div class="nav-links">
+        <a href="index.html"><span class="label">Home</span></a>
+        <a href="my-submissions.html"><span class="label">My Submissions</span></a>
+        <a href="login.html" id="navAccountLink" class="account-link">Log In</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container narrow center" style="padding-top:96px;">
+      <div class="hero-badge small" style="background:var(--status-resolved);">
+        <svg viewBox="0 0 24 24"><path d="M9,16.17L4.83,12l-1.42,1.41L9,19 21,7l-1.41,-1.41z"/></svg>
+      </div>
+      <h1 style="font-size:24px; margin-bottom:8px;">Thank you!</h1>
+      <p class="text-secondary" style="margin-bottom:32px;">Your submission has been received successfully.</p>
+
+      <a href="index.html" class="btn btn-primary">Back Home</a>
+    </div>
+  </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+</body>
+</html>

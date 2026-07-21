@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verify Your Email - VoiceBox</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<div class="page">
+
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-brand">
+        <span class="logo-badge">
+          <svg viewBox="0 0 24 24"><path d="M20,2H4C2.9,2,2,2.9,2,4v18l4-4h14c1.1,0,2-0.9,2-2V4C22,2.9,21.1,2,20,2z"/></svg>
+        </span>
+        VoiceBox
+      </a>
+      <div class="nav-links">
+        <a href="index.html"><span class="label">Home</span></a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container narrow center" style="padding-top:56px;">
+      <div class="hero-badge">
+        <svg viewBox="0 0 24 24"><path d="M20,4H4c-1.1,0 -1.99,0.9 -1.99,2L2,18c0,1.1 0.9,2 2,2h16c1.1,0 2,-0.9 2,-2V6C22,4.9 21.1,4 20,4z M20,8l-8,5L4,8V6l8,5 8,-5V8z"/></svg>
+      </div>
+      <h1 style="font-size:24px; margin-bottom:8px;">Verify Your Email</h1>
+      <p class="text-secondary" style="margin-bottom:32px;">
+        We've sent a verification link to your email. Please check your inbox and click the link to continue.
+      </p>
+
+      <button class="btn btn-primary btn-block" id="btnVerified">
+        <span class="btn-label">I've Verified - Continue</span>
+        <span class="spinner"></span>
+      </button>
+      <div class="spacer-md"></div>
+      <button class="btn btn-outline btn-block" id="btnResend">
+        <span class="btn-label">Resend Verification Email</span>
+        <span class="spinner"></span>
+      </button>
+
+      <p class="center" style="margin-top:24px;">
+        <span class="link-text" onclick="useAnotherAccount()">Use a different account</span>
+      </p>
+    </div>
+  </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const email = params.get("email") || "";
+
+  document.getElementById("btnVerified").addEventListener("click", async () => {
+    const button = document.getElementById("btnVerified");
+    setButtonLoading(button, true, "Checking...");
+
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+
+      if (!session) {
+        setButtonLoading(button, false);
+        document.querySelector("#btnVerified .btn-label").textContent = "I've Verified - Continue";
+        showToast("Please log in again to check your status.");
+        return;
+      }
+
+      const { data, error } = await supabaseClient.auth.getUser(session.access_token);
+      if (error) throw error;
+
+      setButtonLoading(button, false);
+      document.querySelector("#btnVerified .btn-label").textContent = "I've Verified - Continue";
+
+      if (data.user && data.user.email_confirmed_at) {
+        window.location.href = "my-submissions.html";
+      } else {
+        showToast("Your email isn't verified yet. Please check your inbox.");
+      }
+    } catch (err) {
+      setButtonLoading(button, false);
+      document.querySelector("#btnVerified .btn-label").textContent = "I've Verified - Continue";
+      showToast(err.message || "Something went wrong. Please try again.");
+    }
+  });
+
+  document.getElementById("btnResend").addEventListener("click", async () => {
+    const button = document.getElementById("btnResend");
+    setButtonLoading(button, true, "Sending...");
+
+    try {
+      const { error } = await supabaseClient.auth.resend({ type: "signup", email: email });
+      if (error) throw error;
+      showToast("Verification email sent.");
+    } catch (err) {
+      showToast(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setButtonLoading(button, false);
+      document.querySelector("#btnResend .btn-label").textContent = "Resend Verification Email";
+    }
+  });
+
+  async function useAnotherAccount() {
+    await supabaseClient.auth.signOut();
+    window.location.href = "login.html";
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log In - VoiceBox</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<div class="page">
+
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-brand">
+        <span class="logo-badge">
+          <svg viewBox="0 0 24 24"><path d="M20,2H4C2.9,2,2,2.9,2,4v18l4-4h14c1.1,0,2-0.9,2-2V4C22,2.9,21.1,2,20,2z"/></svg>
+        </span>
+        VoiceBox
+      </a>
+      <div class="nav-links">
+        <a href="home.html"><span class="label">Home</span></a>
+        <a href="my-submissions.html"><span class="label">My Submissions</span></a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container narrow" style="padding-top:48px; padding-bottom:48px;">
+
+      <!-- ===== Choice screen (mirrors mobile Welcome screen) ===== -->
+      <div id="choiceView" class="center">
+        <div class="hero-badge">
+          <svg viewBox="0 0 24 24"><path d="M20,2H4C2.9,2,2,2.9,2,4v18l4-4h14c1.1,0,2-0.9,2-2V4C22,2.9,21.1,2,20,2z"/></svg>
+        </div>
+        <h1 style="font-size:28px; margin-bottom:10px;">VoiceBox</h1>
+        <p class="text-secondary" style="margin-bottom:36px;">We value your voice. Choose how you'd like to continue.</p>
+
+        <button class="btn btn-primary btn-block" onclick="showForm('login')">
+          Log In / Sign Up
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M4,11v2h12l-5.5,5.5 1.42,1.42L19.84,12l-7.92,-7.92L10.5,5.5 16,11z"/></svg>
+        </button>
+        <div class="spacer-md"></div>
+        <a href="home.html" class="btn btn-outline btn-block">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="#8A8A9E"><path d="M12,12c2.21,0 4,-1.79 4,-4s-1.79,-4 -4,-4 -4,1.79 -4,4 1.79,4 4,4zM12,14c-2.67,0 -8,1.34 -8,4v2h16v-2c0,-2.66 -5.33,-4 -8,-4z"/></svg>
+          Continue as Anonymous
+        </a>
+      </div>
+
+      <!-- ===== Login / Sign Up form (mirrors mobile Auth screen) ===== -->
+      <div id="authView" class="center" style="display:none;">
+        <div class="hero-badge small">
+          <svg viewBox="0 0 24 24"><path d="M20,2H4C2.9,2,2,2.9,2,4v18l4-4h14c1.1,0,2-0.9,2-2V4C22,2.9,21.1,2,20,2z"/></svg>
+        </div>
+        <h1 id="authTitle" style="font-size:24px; margin-bottom:8px;">Welcome Back</h1>
+        <p id="authSubtitle" class="text-secondary" style="margin-bottom:28px;">Log in to continue to VoiceBox.</p>
+
+        <form id="authForm" style="text-align:left;">
+
+          <div class="field" id="fieldFullName" style="display:none;">
+            <label>Full Name</label>
+            <input type="text" id="inputFullName" placeholder="Juan Dela Cruz">
+            <div class="error-msg">This field is required.</div>
+          </div>
+
+          <div class="field" id="fieldStudentNumber" style="display:none;">
+            <label>Student Number</label>
+            <input type="text" id="inputStudentNumber" placeholder="S24-0083" maxlength="8">
+            <div class="error-msg">Format should look like S24-0083.</div>
+          </div>
+
+          <div class="field" id="fieldGrade" style="display:none;">
+            <label>Grade Level</label>
+            <div style="display:flex; gap:10px;">
+              <button type="button" class="btn btn-outline" data-grade="11" onclick="selectChip(this,'grade')" style="flex:1;">11</button>
+              <button type="button" class="btn btn-outline" data-grade="12" onclick="selectChip(this,'grade')" style="flex:1;">12</button>
+            </div>
+          </div>
+
+          <div class="field" id="fieldStrand" style="display:none;">
+            <label>Strand</label>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <button type="button" class="btn btn-outline" data-strand="STEM" onclick="selectChip(this,'strand')">STEM</button>
+              <button type="button" class="btn btn-outline" data-strand="TVL" onclick="selectChip(this,'strand')">TVL</button>
+              <button type="button" class="btn btn-outline" data-strand="ABM" onclick="selectChip(this,'strand')">ABM</button>
+              <button type="button" class="btn btn-outline" data-strand="HUMSS" onclick="selectChip(this,'strand')">HUMSS</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="inputEmail" placeholder="you@example.com">
+            <div class="error-msg">Enter a valid email address.</div>
+          </div>
+
+          <div class="field">
+            <label>Password</label>
+            <input type="password" id="inputPassword" placeholder="At least 6 characters">
+            <div class="error-msg">Password must be at least 6 characters.</div>
+          </div>
+
+          <div style="text-align:right; margin-bottom:8px;">
+            <a href="forgot-password.html" class="link-text">Forgot Password?</a>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="btnSubmitAuth" style="margin-top:12px;">
+            <span class="btn-label">Log In</span>
+            <span class="spinner"></span>
+          </button>
+        </form>
+
+        <p class="center" style="margin-top:20px;">
+          <span id="togglePrompt" class="link-text" onclick="toggleMode()">Don't have an account? Sign Up</span>
+        </p>
+
+        <p class="center" style="margin-top:12px;">
+          <span class="link-text text-secondary" style="color:var(--text-secondary);" onclick="showForm('choice')">&larr; Back</span>
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+<script>
+  let isLoginMode = true;
+  let selectedGrade = null;
+  let selectedStrand = null;
+
+  function showForm(which) {
+    document.getElementById("choiceView").style.display = which === "choice" ? "block" : "none";
+    document.getElementById("authView").style.display = which === "login" ? "block" : "none";
+  }
+
+  function selectChip(button, type) {
+    const group = type === "grade" ? "[data-grade]" : "[data-strand]";
+    document.querySelectorAll(group).forEach(el => {
+      el.classList.remove("btn-primary");
+      el.classList.add("btn-outline");
+    });
+    button.classList.remove("btn-outline");
+    button.classList.add("btn-primary");
+    if (type === "grade") selectedGrade = button.dataset.grade;
+    if (type === "strand") selectedStrand = button.dataset.strand;
+  }
+
+  function toggleMode() {
+    isLoginMode = !isLoginMode;
+    updateModeDisplay();
+  }
+
+  function updateModeDisplay() {
+    const title = document.getElementById("authTitle");
+    const subtitle = document.getElementById("authSubtitle");
+    const submitLabel = document.querySelector("#btnSubmitAuth .btn-label");
+    const togglePrompt = document.getElementById("togglePrompt");
+
+    ["fieldFullName", "fieldStudentNumber", "fieldGrade", "fieldStrand"].forEach(id => {
+      document.getElementById(id).style.display = isLoginMode ? "none" : "block";
+    });
+
+    if (isLoginMode) {
+      title.textContent = "Welcome Back";
+      subtitle.textContent = "Log in to continue to VoiceBox.";
+      submitLabel.textContent = "Log In";
+      togglePrompt.textContent = "Don't have an account? Sign Up";
+    } else {
+      title.textContent = "Create Account";
+      subtitle.textContent = "Sign up to submit and track your complaints or suggestions.";
+      submitLabel.textContent = "Sign Up";
+      togglePrompt.textContent = "Already have an account? Log In";
+    }
+  }
+
+  function setFieldError(fieldId, hasError) {
+    document.getElementById(fieldId).classList.toggle("has-error", hasError);
+  }
+
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  document.getElementById("authForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById("inputEmail").value.trim();
+    const password = document.getElementById("inputPassword").value.trim();
+    let valid = true;
+
+    setFieldError("inputEmail", false);
+    if (!isValidEmail(email)) {
+      document.getElementById("inputEmail").parentElement.classList.add("has-error");
+      valid = false;
+    } else {
+      document.getElementById("inputEmail").parentElement.classList.remove("has-error");
+    }
+
+    if (password.length < 6) {
+      document.getElementById("inputPassword").parentElement.classList.add("has-error");
+      valid = false;
+    } else {
+      document.getElementById("inputPassword").parentElement.classList.remove("has-error");
+    }
+
+    if (!isLoginMode) {
+      const name = document.getElementById("inputFullName").value.trim();
+      const studentNumber = document.getElementById("inputStudentNumber").value.trim();
+      const studentNumberPattern = /^S\d{2}-\d{4}$/;
+
+      if (!name) {
+        document.getElementById("inputFullName").parentElement.classList.add("has-error");
+        valid = false;
+      } else {
+        document.getElementById("inputFullName").parentElement.classList.remove("has-error");
+      }
+
+      if (!studentNumberPattern.test(studentNumber)) {
+        document.getElementById("inputStudentNumber").parentElement.classList.add("has-error");
+        valid = false;
+      } else {
+        document.getElementById("inputStudentNumber").parentElement.classList.remove("has-error");
+      }
+
+      if (!selectedGrade) {
+        showToast("Please select a grade level");
+        valid = false;
+      }
+      if (!selectedStrand) {
+        showToast("Please select a strand");
+        valid = false;
+      }
+    }
+
+    if (!valid) return;
+
+    const button = document.getElementById("btnSubmitAuth");
+    setButtonLoading(button, true, isLoginMode ? "Logging in..." : "Signing up...");
+
+    try {
+      const { data: emailCheck, error: checkError } = await supabaseClient.rpc("email_exists", { check_email: email });
+      if (checkError) throw checkError;
+
+      if (isLoginMode) {
+        if (!emailCheck) {
+          setButtonLoading(button, false);
+          document.querySelector("#btnSubmitAuth .btn-label").textContent = "Log In";
+          document.getElementById("inputEmail").parentElement.classList.add("has-error");
+          showToast("No account found with this email.");
+          return;
+        }
+
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+
+        const user = data.user;
+        if (user && user.email_confirmed_at) {
+          window.location.href = "my-submissions.html";
+        } else {
+          window.location.href = "verify-email.html?email=" + encodeURIComponent(email);
+        }
+      } else {
+        if (emailCheck) {
+          setButtonLoading(button, false);
+          document.querySelector("#btnSubmitAuth .btn-label").textContent = "Sign Up";
+          document.getElementById("inputEmail").parentElement.classList.add("has-error");
+          showToast("An account with this email already exists. Try logging in instead.");
+          return;
+        }
+
+        const { data, error } = await supabaseClient.auth.signUp({ email, password });
+        if (error) throw error;
+
+        const userId = data.user ? data.user.id : null;
+        if (userId) {
+          await supabaseClient.from("profiles").update({
+            full_name: document.getElementById("inputFullName").value.trim(),
+            student_id: document.getElementById("inputStudentNumber").value.trim(),
+            grade_level: selectedGrade,
+            strand: selectedStrand,
+            email: email
+          }).eq("id", userId);
+        }
+
+        window.location.href = "verify-email.html?email=" + encodeURIComponent(email);
+      }
+    } catch (err) {
+      setButtonLoading(button, false);
+      document.querySelector("#btnSubmitAuth .btn-label").textContent = isLoginMode ? "Log In" : "Sign Up";
+      showToast(err.message || "Something went wrong. Please try again.");
+    }
+  });
+
+  updateModeDisplay();
+</script>
+</body>
+</html>

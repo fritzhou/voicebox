@@ -1,0 +1,340 @@
+/* ============================================================
+   VoiceBox Web Portal — Shared Stylesheet
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --primary: #EC1561;
+  --secondary: #F0609B;
+  --bg: #FDF0F5;
+  --text-main: #25253A;
+  --text-sec: #8A8A9E;
+  --border: #E5E5EF;
+  --white: #FFFFFF;
+  --light-pink: #FCE4EC;
+  --status-pending: #FFA726;
+  --status-reviewed: #42A5F5;
+  --status-resolved: #23C483;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--text-main);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+}
+
+/* ---------- Layout ---------- */
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.container {
+  padding: 24px;
+  flex: 1;
+}
+
+/* ---------- Header bars ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+.topbar .back {
+  color: white;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.topbar h1 {
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.hero-header {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  padding: 56px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 0 0 32px 32px;
+  text-align: center;
+}
+
+.hero-header .icon-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.hero-header .icon-circle svg {
+  width: 32px;
+  height: 32px;
+  fill: white;
+}
+
+.hero-header h1 {
+  color: white;
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.hero-header p {
+  color: rgba(255,255,255,0.85);
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+
+/* ---------- Form elements ---------- */
+.field {
+  margin-bottom: 16px;
+}
+
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-sec);
+  margin-bottom: 6px;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text-main);
+  background: white;
+  transition: border-color 0.15s;
+}
+
+.field input:focus,
+.field textarea:focus {
+  border-color: var(--primary);
+}
+
+.field input.error,
+.field textarea.error {
+  border-color: var(--primary);
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.field-hint {
+  font-size: 12px;
+  color: var(--text-sec);
+  margin-top: 6px;
+}
+
+.field-error {
+  font-size: 12px;
+  color: var(--primary);
+  margin-top: 6px;
+  display: none;
+}
+
+.field-error.show {
+  display: block;
+}
+
+/* ---------- Grade chips ---------- */
+.chip-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.chip {
+  background: var(--light-pink);
+  color: var(--primary);
+  font-weight: 700;
+  padding: 13px;
+  border-radius: 12px;
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.chip.selected {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  width: 100%;
+  padding: 15px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  text-align: center;
+  transition: transform 0.1s, opacity 0.15s;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  box-shadow: 0 8px 20px rgba(236, 21, 97, 0.25);
+}
+
+.btn-secondary {
+  background: var(--light-pink);
+  color: var(--primary);
+}
+
+.btn-outline {
+  background: white;
+  color: var(--text-sec);
+  border: 1px solid var(--border);
+}
+
+.btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.btn-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.spinner-dark {
+  border: 2px solid rgba(236, 21, 97, 0.25);
+  border-top-color: var(--primary);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- Cards ---------- */
+.card {
+  background: white;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+}
+
+.card + .card {
+  margin-top: 14px;
+}
+
+/* ---------- Status badges ---------- */
+.badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
+}
+
+.badge-pending { background: var(--status-pending); }
+.badge-reviewed { background: var(--status-reviewed); }
+.badge-resolved { background: var(--status-resolved); }
+
+/* ---------- Bottom nav ---------- */
+.bottom-nav {
+  display: flex;
+  background: white;
+  padding: 10px 0;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+  position: sticky;
+  bottom: 0;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 0;
+  color: var(--text-sec);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.nav-item.active {
+  color: var(--primary);
+}
+
+.nav-item .nav-icon-wrap {
+  width: 40px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+}
+
+.nav-item.active .nav-icon-wrap {
+  background: var(--light-pink);
+}
+
+.nav-item svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+/* ---------- Utility ---------- */
+.text-center { text-align: center; }
+.text-sm { font-size: 13px; }
+.text-muted { color: var(--text-sec); }
+.mt-6 { margin-top: 24px; }
+.link-primary { color: var(--primary); font-weight: 700; }
+.hidden { display: none !important; }

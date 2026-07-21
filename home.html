@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoiceBox - Lourdes College TVL Portal</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<div class="page">
+
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-brand">
+        <span class="logo-badge">
+          <svg viewBox="0 0 24 24"><path d="M20,2H4C2.9,2,2,2.9,2,4v18l4-4h14c1.1,0,2-0.9,2-2V4C22,2.9,21.1,2,20,2z"/></svg>
+        </span>
+        VoiceBox
+      </a>
+      <div class="nav-links">
+        <a href="home.html" class="active"><span class="label">Home</span></a>
+        <a href="my-submissions.html"><span class="label">My Submissions</span></a>
+        <a href="login.html" id="navAccountLink" class="account-link">Log In</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container narrow center" style="padding-top:56px; padding-bottom:24px;">
+      <div class="eyebrow">We're Listening</div>
+      <h1 class="hero-title" style="font-size:36px; margin-bottom:12px;">We value your voice.</h1>
+      <p class="text-secondary" style="font-size:15px; max-width:400px; margin:0 auto;">
+        Share your complaints or suggestions to help us improve.
+      </p>
+    </div>
+
+    <div class="container" style="max-width:760px; padding-bottom:24px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+
+        <a href="complaint.html" class="card-action complaint">
+          <div class="icon-ring">
+            <svg viewBox="0 0 24 24"><path d="M12,2L1,21h22L12,2z M13,16h-2v2h2V16z M13,10h-2v4h2V10z"/></svg>
+          </div>
+          <h3>Complaint</h3>
+          <p>Tell us what went wrong so we can make it right.</p>
+          <span class="arrow-btn">
+            <svg viewBox="0 0 24 24"><path d="M4,11v2h12l-5.5,5.5 1.42,1.42L19.84,12l-7.92,-7.92L10.5,5.5 16,11z"/></svg>
+          </span>
+        </a>
+
+        <a href="suggestion.html" class="card-action suggestion">
+          <div class="icon-ring">
+            <svg viewBox="0 0 24 24"><path d="M9,21c0,0.55 0.45,1 1,1h4c0.55,0 1,-0.45 1,-1v-1H9V21z M12,2C8.14,2 5,5.14 5,9c0,2.38 1.19,4.47 3,5.74V17c0,0.55 0.45,1 1,1h6c0.55,0 1,-0.45 1,-1v-2.26c1.81,-1.27 3,-3.36 3,-5.74C19,5.14 15.86,2 12,2z"/></svg>
+          </div>
+          <h3>Suggestion</h3>
+          <p>Share an idea that could help us do better.</p>
+          <span class="arrow-btn">
+            <svg viewBox="0 0 24 24"><path d="M4,11v2h12l-5.5,5.5 1.42,1.42L19.84,12l-7.92,-7.92L10.5,5.5 16,11z"/></svg>
+          </span>
+        </a>
+
+      </div>
+
+      <p class="text-secondary center" style="margin-top:32px; font-size:13px;">
+        Every submission is important to us.
+      </p>
+    </div>
+
+    <div class="spacer-lg"></div>
+  </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+</body>
+</html>

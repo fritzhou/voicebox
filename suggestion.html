@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Submit a Suggestion - VoiceBox</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<div class="page">
+
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-brand">
+        <span class="logo-badge">
+          <svg viewBox="0 0 24 24"><path d="M20,2H4C2.9,2,2,2.9,2,4v18l4-4h14c1.1,0,2-0.9,2-2V4C22,2.9,21.1,2,20,2z"/></svg>
+        </span>
+        VoiceBox
+      </a>
+      <div class="nav-links">
+        <a href="index.html"><span class="label">Home</span></a>
+        <a href="my-submissions.html"><span class="label">My Submissions</span></a>
+        <a href="login.html" id="navAccountLink" class="account-link">Log In</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container narrow center" style="padding-top:48px;">
+      <div class="hero-badge small" style="background:var(--suggestion);">
+        <svg viewBox="0 0 24 24"><path d="M9,21c0,0.55 0.45,1 1,1h4c0.55,0 1,-0.45 1,-1v-1H9V21z M12,2C8.14,2 5,5.14 5,9c0,2.38 1.19,4.47 3,5.74V17c0,0.55 0.45,1 1,1h6c0.55,0 1,-0.45 1,-1v-2.26c1.81,-1.27 3,-3.36 3,-5.74C19,5.14 15.86,2 12,2z"/></svg>
+      </div>
+      <h1 style="font-size:24px; margin-bottom:8px;">Submit a Suggestion</h1>
+      <p class="text-secondary" style="margin-bottom:28px;">Share an idea that could help us do better.</p>
+
+      <form id="suggestionForm" class="card" style="text-align:left;">
+        <div class="field">
+          <label>Name <span class="optional">(Optional)</span></label>
+          <input type="text" id="inputName" placeholder="Your name">
+        </div>
+
+        <div class="field">
+          <label>Email <span class="optional">(Optional)</span></label>
+          <input type="email" id="inputEmail" placeholder="you@example.com">
+          <div class="error-msg">Enter a valid email address.</div>
+        </div>
+
+        <div class="field">
+          <label>Suggestion <span class="optional">(Required)</span></label>
+          <textarea id="inputDetails" placeholder="Share your idea in detail..."></textarea>
+          <div class="error-msg">Please share your suggestion.</div>
+        </div>
+
+        <div class="field">
+          <label>Photo <span class="optional">(Optional)</span></label>
+          <input type="file" id="inputPhoto" accept="image/*">
+        </div>
+
+        <button type="submit" class="btn btn-block" id="btnSubmit" style="background:var(--suggestion); color:white;">
+          <span class="btn-label">Submit Suggestion</span>
+          <span class="spinner"></span>
+        </button>
+      </form>
+    </div>
+    <div class="spacer-lg"></div>
+  </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+<script>
+  function isValidEmail(email) {
+    return email === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  document.getElementById("suggestionForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById("inputName").value.trim();
+    const email = document.getElementById("inputEmail").value.trim();
+    const details = document.getElementById("inputDetails").value.trim();
+    const photoFile = document.getElementById("inputPhoto").files[0];
+    let valid = true;
+
+    if (!isValidEmail(email)) {
+      document.getElementById("inputEmail").parentElement.classList.add("has-error");
+      valid = false;
+    } else {
+      document.getElementById("inputEmail").parentElement.classList.remove("has-error");
+    }
+
+    if (!details) {
+      document.getElementById("inputDetails").parentElement.classList.add("has-error");
+      valid = false;
+    } else {
+      document.getElementById("inputDetails").parentElement.classList.remove("has-error");
+    }
+
+    if (!valid) return;
+
+    const button = document.getElementById("btnSubmit");
+    setButtonLoading(button, true, "Submitting...");
+
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const userId = session ? session.user.id : null;
+
+      let imageUrl = "";
+      if (photoFile) {
+        const fileName = "suggestions/" + crypto.randomUUID() + "-" + photoFile.name;
+        const { error: uploadError } = await supabaseClient.storage
+          .from("voicebox-images")
+          .upload(fileName, photoFile);
+        if (uploadError) throw uploadError;
+
+        const { data: publicUrlData } = supabaseClient.storage
+          .from("voicebox-images")
+          .getPublicUrl(fileName);
+        imageUrl = publicUrlData.publicUrl;
+      }
+
+      const { error } = await supabaseClient.from("submissions").insert({
+        type: "suggestion",
+        title: details.slice(0, 60),
+        description: details,
+        name: name,
+        email: email,
+        user_id: userId,
+        image_url: imageUrl
+      });
+      if (error) throw error;
+
+      window.location.href = "thank-you.html?type=suggestion";
+    } catch (err) {
+      setButtonLoading(button, false);
+      document.querySelector("#btnSubmit .btn-label").textContent = "Submit Suggestion";
+      showToast(err.message || "Something went wrong. Please try again.");
+    }
+  });
+</script>
+</body>
+</html>
