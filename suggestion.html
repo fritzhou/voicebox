@@ -156,6 +156,17 @@
       showToast(err.message || "Something went wrong. Please try again.");
     }
   });
+
+  const inputPhoto = document.getElementById("inputPhoto");
+const photoFileName = document.getElementById("photoFileName");
+
+inputPhoto.addEventListener("change", () => {
+  if (inputPhoto.files.length) {
+    photoFileName.textContent = inputPhoto.files[0].name;
+  } else {
+    photoFileName.textContent = "No photo selected";
+  }
+});
 </script>
 </body>
 </html>
