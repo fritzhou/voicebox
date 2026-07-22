@@ -256,7 +256,7 @@
 
         const user = data.user;
         if (user && user.email_confirmed_at) {
-          window.location.href = "my-submissions.html";
+          window.location.href = "home.html";
         } else {
           window.location.href = "verify-email.html?email=" + encodeURIComponent(email);
         }
