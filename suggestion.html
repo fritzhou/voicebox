@@ -53,9 +53,26 @@
         </div>
 
         <div class="field">
-          <label>Photo <span class="optional">(Optional)</span></label>
-          <input type="file" id="inputPhoto" accept="image/*">
-        </div>
+  <label for="inputPhoto">Photo <span class="optional">(Optional)</span></label>
+
+  <label for="inputPhoto" class="photo-upload-btn">
+    <svg viewBox="0 0 24 24" class="photo-icon">
+        <path fill="currentColor" d="M9 3L7.17 5H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.17L15 3H9zm3 15a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/>
+    </svg>
+    <span>Add Photo</span>
+</label>
+
+  <input
+    type="file"
+    id="inputPhoto"
+    accept="image/*"
+    hidden
+  >
+
+  <span id="photoFileName" class="file-name">
+    No photo selected
+  </span>
+</div>
 
         <button type="submit" class="btn btn-block" id="btnSubmit" style="background:var(--suggestion); color:white;">
           <span class="btn-label">Submit Suggestion</span>
