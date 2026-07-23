@@ -280,23 +280,30 @@
   }
 
   async function updateStatus(id, newStatus) {
-    console.log("Updating:", id, newStatus);
 
-    const { data, error } = await supabaseClient
-        .from("submissions")
-        .update({ status: newStatus })
-        .eq("id", id)
-        .select();
+  const { error } = await supabaseClient
+    .from("submissions")
+    .update({
+      status: newStatus
+    })
+    .eq("id", id);
 
-    console.log("DATA:", data);
-    console.log("ERROR:", error);
+  if (error) {
+    console.error(error);
+    showToast(error.message);
+    return;
+  }
 
-    if (error) {
-        alert(error.message);
-        return;
-    }
+  const record = allRecords.find(r => r.id === id);
 
-    alert("Success");
+  if (record) {
+    record.status = newStatus;
+  }
+
+  renderStats();
+  renderTable();
+
+  showToast("Status updated.");
 }
 
   function viewRecord(id) {
@@ -311,17 +318,28 @@
   }
 
   async function deleteRecord(id) {
-    if (!confirm("Delete this submission? This can't be undone.")) return;
-    const { error } = await supabaseClient.from("submissions").delete().eq("id", id);
-    if (error) {
-      showToast("Failed to delete.");
-      return;
-    }
-    allRecords = allRecords.filter(r => r.id !== id);
-    renderStats();
-    renderTable();
-    showToast("Submission deleted.");
+
+  if (!confirm("Delete this submission? This can't be undone."))
+    return;
+
+  const { error } = await supabaseClient
+    .from("submissions")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error(error);
+    showToast(error.message);
+    return;
   }
+
+  allRecords = allRecords.filter(r => r.id !== id);
+
+  renderStats();
+  renderTable();
+
+  showToast("Submission deleted.");
+}
 
   document.querySelectorAll(".filter-pill").forEach(pill => {
     pill.addEventListener("click", () => {
