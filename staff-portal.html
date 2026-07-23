@@ -319,19 +319,28 @@
 
   async function deleteRecord(id) {
 
-  if (!confirm("Delete this submission? This can't be undone."))
-    return;
+    if (!confirm("Delete this submission? This can't be undone."))
+        return;
 
-  const { error } = await supabaseClient
-    .from("submissions")
-    .delete()
-    .eq("id", id);
+    const { error } = await supabaseClient
+        .from("submissions")
+        .delete()
+        .eq("id", id);
 
-  if (error) {
-    console.error(error);
-    showToast(error.message);
-    return;
-  }
+    console.log("DELETE ERROR:", error);
+
+    if (error) {
+        alert(error.message);
+        return;
+    }
+
+    allRecords = allRecords.filter(r => r.id !== id);
+
+    renderStats();
+    renderTable();
+
+    showToast("Submission deleted.");
+}
 
   allRecords = allRecords.filter(r => r.id !== id);
 
