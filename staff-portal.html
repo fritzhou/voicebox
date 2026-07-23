@@ -319,14 +319,19 @@
 
   async function deleteRecord(id) {
 
-    if (!confirm("Delete this submission? This can't be undone."))
-        return;
+    console.log("Deleting ID:", id);
 
-    const { error } = await supabaseClient
+    if (!confirm("Delete this submission? This can't be undone.")) {
+        return;
+    }
+
+    const { data, error } = await supabaseClient
         .from("submissions")
         .delete()
-        .eq("id", id);
+        .eq("id", id)
+        .select();
 
+    console.log("DELETE DATA:", data);
     console.log("DELETE ERROR:", error);
 
     if (error) {
@@ -339,9 +344,8 @@
     renderStats();
     renderTable();
 
-    showToast("Submission deleted.");
+    alert("Deleted successfully");
 }
-
 
   document.querySelectorAll(".filter-pill").forEach(pill => {
     pill.addEventListener("click", () => {
