@@ -280,16 +280,27 @@
   }
 
   async function updateStatus(id, newStatus) {
-    const { error } = await supabaseClient.from("submissions").update({ status: newStatus }).eq("id", id);
+    const { data, error } = await supabaseClient
+      .from("submissions")
+      .update({ status: newStatus })
+      .eq("id", id)
+      .select();
+
     if (error) {
-      showToast("Failed to update status.");
+      showToast("Failed to update status: " + error.message);
       return;
     }
+
+    if (!data || data.length === 0) {
+      showToast("Update didn't apply — your session may have expired. Try logging out and back in.");
+      return;
+    }
+
     const record = allRecords.find(r => r.id === id);
     if (record) record.status = newStatus;
     renderStats();
     showToast("Status updated.");
-  }
+}
 
   function viewRecord(id) {
     const record = allRecords.find(r => r.id === id);
