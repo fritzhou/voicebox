@@ -334,8 +334,6 @@
         return;
     }
 
-  }
-
     allRecords = allRecords.filter(r => r.id !== id);
 
     renderStats();
@@ -344,13 +342,6 @@
     showToast("Submission deleted.");
 }
 
-  allRecords = allRecords.filter(r => r.id !== id);
-
-  renderStats();
-  renderTable();
-
-  showToast("Submission deleted.");
-}
 
   document.querySelectorAll(".filter-pill").forEach(pill => {
     pill.addEventListener("click", () => {
