@@ -254,6 +254,9 @@
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) throw error;
 
+        // Clear any leftover signup draft now that a real login succeeded.
+        sessionStorage.removeItem("voicebox_signup_draft");
+
         const user = data.user;
         if (user && user.email_confirmed_at) {
           window.location.href = "home.html";
@@ -284,6 +287,16 @@
         });
         if (error) throw error;
 
+        // Save the form (no password) so it can be restored ONLY if
+        // the student comes straight back from the verify screen.
+        sessionStorage.setItem("voicebox_signup_draft", JSON.stringify({
+          full_name: document.getElementById("inputFullName").value.trim(),
+          student_id: document.getElementById("inputStudentNumber").value.trim(),
+          email: email,
+          grade: selectedGrade,
+          strand: selectedStrand
+        }));
+
         window.location.href = "verify-email.html?email=" + encodeURIComponent(email);
       }
     } catch (err) {
@@ -292,6 +305,32 @@
       showToast(err.message || "Something went wrong. Please try again.");
     }
   });
+
+  // Restore the signup form ONLY if the student is arriving here with
+  // a saved draft (i.e. came back from the verify screen). This runs
+  // once on page load, then immediately deletes the draft - so it
+  // never resurfaces on a later visit, manual toggle, or after login.
+  const savedDraft = sessionStorage.getItem("voicebox_signup_draft");
+  if (savedDraft) {
+    const draft = JSON.parse(savedDraft);
+    isLoginMode = false;
+    showForm("login");
+
+    document.getElementById("inputFullName").value = draft.full_name || "";
+    document.getElementById("inputStudentNumber").value = draft.student_id || "";
+    document.getElementById("inputEmail").value = draft.email || "";
+
+    if (draft.grade) {
+      const gradeChip = document.querySelector(`[data-grade="${draft.grade}"]`);
+      if (gradeChip) selectChip(gradeChip, "grade");
+    }
+    if (draft.strand) {
+      const strandChip = document.querySelector(`[data-strand="${draft.strand}"]`);
+      if (strandChip) selectChip(strandChip, "strand");
+    }
+
+    sessionStorage.removeItem("voicebox_signup_draft");
+  }
 
   updateModeDisplay();
 </script>
