@@ -92,6 +92,18 @@
     return email === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
+  // Stable per-browser identifier, generated once and reused forever
+  // via localStorage. Used purely for basic submission rate-limiting -
+  // not tied to any personal information.
+  function getDeviceId() {
+    let deviceId = localStorage.getItem("voicebox_device_id");
+    if (!deviceId) {
+      deviceId = crypto.randomUUID();
+      localStorage.setItem("voicebox_device_id", deviceId);
+    }
+    return deviceId;
+  }
+
   document.getElementById("complaintForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -145,7 +157,8 @@
         name: name,
         email: email,
         user_id: userId,
-        image_url: imageUrl
+        image_url: imageUrl,
+        device_id: getDeviceId()
       });
       if (error) throw error;
 
