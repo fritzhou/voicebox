@@ -68,6 +68,23 @@
   }
   .empty-icon svg { width: 40px; height: 40px; fill: var(--primary); }
 
+  .deadline-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 20px;
+    margin-top: 6px;
+  }
+  .deadline-badge.overdue {
+    background: #FFEBEE;
+    color: #E53935;
+  }
+  .deadline-badge.on-track {
+    background: #E8F5E9;
+    color: #2E7D32;
+  }
+
   /* ===== Details Modal ===== */
   .modal-overlay {
     display: none;
@@ -241,6 +258,7 @@
       <div class="sub-date" id="detailsDate"></div>
       <div style="margin-top:10px;">
         <span class="status-badge" id="detailsStatusBadge" style="background:rgba(255,255,255,0.25); color:white;"></span>
+        <span class="status-badge" id="detailsDeadlineBadge" style="margin-left:6px;"></span>
       </div>
     </div>
     <div class="details-body">
@@ -288,7 +306,7 @@
     if (!session) return;
 
     const { data, error } = await supabaseClient
-      .from("submissions")
+      .from("submissions_with_sla")
       .select("*")
       .eq("user_id", session.user.id)
       .eq("type", currentTab)
@@ -308,16 +326,25 @@
 
     currentSubmissions = data;
     emptyEl.style.display = "none";
-    listEl.innerHTML = data.map((item, index) => `
-      <div class="submission-item" onclick="openDetails(${index})">
-        <div class="row-top">
-          <p class="desc">${escapeHtml(item.description).slice(0, 120)}</p>
-          <span class="status-badge status-${item.status || 'pending'}">${statusLabel[item.status] || 'Pending'}</span>
+    listEl.innerHTML = data.map((item, index) => {
+      const showDeadlineBadge = item.status !== "resolved";
+      const deadlineBadge = showDeadlineBadge
+        ? item.is_overdue
+          ? `<span class="deadline-badge overdue">Overdue</span>`
+          : `<span class="deadline-badge on-track">${item.days_remaining} day${item.days_remaining === 1 ? '' : 's'} left</span>`
+        : "";
+      return `
+        <div class="submission-item" onclick="openDetails(${index})">
+          <div class="row-top">
+            <p class="desc">${escapeHtml(item.description).slice(0, 120)}</p>
+            <span class="status-badge status-${item.status || 'pending'}">${statusLabel[item.status] || 'Pending'}</span>
+          </div>
+          <div class="date">${formatDate(item.created_at)}</div>
+          ${deadlineBadge}
+          ${item.reply ? `<div class="divider"></div><p class="text-secondary" style="font-size:13px;"><strong>Reply:</strong> ${escapeHtml(item.reply)}</p>` : ""}
         </div>
-        <div class="date">${formatDate(item.created_at)}</div>
-        ${item.reply ? `<div class="divider"></div><p class="text-secondary" style="font-size:13px;"><strong>Reply:</strong> ${escapeHtml(item.reply)}</p>` : ""}
-      </div>
-    `).join("");
+      `;
+    }).join("");
   }
 
   function openDetails(index) {
@@ -333,6 +360,22 @@
 
     const badge = document.getElementById("detailsStatusBadge");
     badge.textContent = statusLabel[item.status] || "Pending";
+
+    const deadlineBadge = document.getElementById("detailsDeadlineBadge");
+    if (item.status !== "resolved") {
+      deadlineBadge.style.display = "inline-block";
+      if (item.is_overdue) {
+        deadlineBadge.textContent = "Overdue";
+        deadlineBadge.style.background = "rgba(255,255,255,0.25)";
+        deadlineBadge.style.color = "#FFCDD2";
+      } else {
+        deadlineBadge.textContent = `${item.days_remaining} day${item.days_remaining === 1 ? '' : 's'} left`;
+        deadlineBadge.style.background = "rgba(255,255,255,0.25)";
+        deadlineBadge.style.color = "white";
+      }
+    } else {
+      deadlineBadge.style.display = "none";
+    }
 
     document.getElementById("detailsDescription").textContent = item.description || "";
 
