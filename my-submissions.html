@@ -33,6 +33,12 @@
     box-shadow: var(--shadow-card);
     padding: 18px;
     margin-bottom: 14px;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .submission-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
   }
   .submission-item .row-top {
     display: flex;
@@ -61,6 +67,104 @@
     margin: 0 auto 20px;
   }
   .empty-icon svg { width: 40px; height: 40px; fill: var(--primary); }
+
+  /* ===== Details Modal ===== */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(37,37,58,0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+  .details-card {
+    width: 100%;
+    max-width: 480px;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: var(--white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+  }
+  .details-header {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    padding: 24px 24px 20px;
+    color: white;
+    position: relative;
+  }
+  .details-header .close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .details-header .close-btn svg { width: 16px; height: 16px; fill: white; }
+  .details-header .icon-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+  .details-header .icon-circle svg { width: 24px; height: 24px; fill: white; }
+  .details-header h2 {
+    font-size: 18px;
+    color: white;
+    margin: 0 0 4px;
+  }
+  .details-header .sub-date {
+    font-size: 13px;
+    color: rgba(255,255,255,0.85);
+  }
+  .details-body { padding: 24px; }
+  .details-body .section-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .details-body .desc-text {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    margin-bottom: 20px;
+  }
+  .details-body .reply-box {
+    background: var(--nav-indicator-light);
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 8px;
+  }
+  .details-body .reply-box p {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.6;
+    margin: 0;
+    white-space: pre-wrap;
+  }
+  .details-photo {
+    width: 100%;
+    border-radius: 14px;
+    margin-bottom: 20px;
+    display: none;
+  }
 </style>
 </head>
 <body>
@@ -122,10 +226,44 @@
 
 </div>
 
+<!-- ===== Submission Details Modal ===== -->
+<div id="detailsModal" class="modal-overlay">
+  <div class="details-card">
+    <div class="details-header">
+      <button class="close-btn" onclick="closeDetails()">
+        <svg viewBox="0 0 24 24"><path d="M19,6.41L17.59,5 12,10.59 6.41,5 5,6.41 10.59,12 5,17.59 6.41,19 12,13.41 17.59,19 19,17.59 13.41,12z"/></svg>
+      </button>
+      <div class="icon-circle" id="detailsIconCircle">
+        <svg id="detailsIconComplaint" viewBox="0 0 24 24" style="display:none;"><path d="M12,2L1,21h22L12,2z M13,16h-2v2h2V16z M13,10h-2v4h2V10z"/></svg>
+        <svg id="detailsIconSuggestion" viewBox="0 0 24 24" style="display:none;"><path d="M9,21c0,0.55 0.45,1 1,1h4c0.55,0 1,-0.45 1,-1v-1H9V21z M12,2C8.14,2 5,5.14 5,9c0,2.38 1.19,4.47 3,5.74V17c0,0.55 0.45,1 1,1h6c0.55,0 1,-0.45 1,-1v-2.26c1.81,-1.27 3,-3.36 3,-5.74C19,5.14 15.86,2 12,2z"/></svg>
+      </div>
+      <h2 id="detailsTitle">Complaint</h2>
+      <div class="sub-date" id="detailsDate"></div>
+      <div style="margin-top:10px;">
+        <span class="status-badge" id="detailsStatusBadge" style="background:rgba(255,255,255,0.25); color:white;"></span>
+      </div>
+    </div>
+    <div class="details-body">
+      <img id="detailsPhoto" class="details-photo" src="" alt="Submission photo">
+
+      <div class="section-label">Description</div>
+      <p class="desc-text" id="detailsDescription"></p>
+
+      <div id="detailsReplySection" style="display:none;">
+        <div class="section-label">Admin Reply</div>
+        <div class="reply-box">
+          <p id="detailsReply"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-client.js"></script>
 <script>
   let currentTab = "complaint";
+  let currentSubmissions = [];
 
   const statusLabel = {
     pending: "Pending",
@@ -160,6 +298,7 @@
     const emptyEl = document.getElementById("emptyState");
 
     if (error || !data || data.length === 0) {
+      currentSubmissions = [];
       listEl.innerHTML = "";
       emptyEl.style.display = "block";
       document.getElementById("emptyStateSubtitle").textContent =
@@ -167,9 +306,10 @@
       return;
     }
 
+    currentSubmissions = data;
     emptyEl.style.display = "none";
-    listEl.innerHTML = data.map(item => `
-      <div class="submission-item">
+    listEl.innerHTML = data.map((item, index) => `
+      <div class="submission-item" onclick="openDetails(${index})">
         <div class="row-top">
           <p class="desc">${escapeHtml(item.description).slice(0, 120)}</p>
           <span class="status-badge status-${item.status || 'pending'}">${statusLabel[item.status] || 'Pending'}</span>
@@ -178,6 +318,45 @@
         ${item.reply ? `<div class="divider"></div><p class="text-secondary" style="font-size:13px;"><strong>Reply:</strong> ${escapeHtml(item.reply)}</p>` : ""}
       </div>
     `).join("");
+  }
+
+  function openDetails(index) {
+    const item = currentSubmissions[index];
+    if (!item) return;
+
+    const isComplaint = item.type === "complaint";
+    document.getElementById("detailsIconComplaint").style.display = isComplaint ? "block" : "none";
+    document.getElementById("detailsIconSuggestion").style.display = isComplaint ? "none" : "block";
+    document.getElementById("detailsTitle").textContent = isComplaint ? "Complaint" : "Suggestion";
+
+    document.getElementById("detailsDate").textContent = formatDate(item.created_at);
+
+    const badge = document.getElementById("detailsStatusBadge");
+    badge.textContent = statusLabel[item.status] || "Pending";
+
+    document.getElementById("detailsDescription").textContent = item.description || "";
+
+    const photo = document.getElementById("detailsPhoto");
+    if (item.image_url) {
+      photo.src = item.image_url;
+      photo.style.display = "block";
+    } else {
+      photo.style.display = "none";
+    }
+
+    const replySection = document.getElementById("detailsReplySection");
+    if (item.reply) {
+      document.getElementById("detailsReply").textContent = item.reply;
+      replySection.style.display = "block";
+    } else {
+      replySection.style.display = "none";
+    }
+
+    document.getElementById("detailsModal").style.display = "flex";
+  }
+
+  function closeDetails() {
+    document.getElementById("detailsModal").style.display = "none";
   }
 
   function escapeHtml(str) {
