@@ -37,6 +37,18 @@
   select.status-select { padding:6px 10px; border-radius:8px; border:1px solid var(--light-gray); font-size:12px; font-weight:600; }
   .icon-btn { background:none; border:none; cursor:pointer; padding:6px; color:var(--text-secondary); }
   .icon-btn:hover { color:var(--primary); }
+
+  .due-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    white-space: nowrap;
+  }
+  .due-badge.overdue { background:#FFEBEE; color:#E53935; }
+  .due-badge.on-track { background:#E8F5E9; color:#2E7D32; }
+  .due-badge.resolved { background:#F0F0F0; color:var(--text-secondary); }
 </style>
 </head>
 <body>
@@ -92,12 +104,13 @@
           </div>
         </div>
 
-        <div style="display:grid; grid-template-columns:repeat(6,1fr); gap:12px; margin-bottom:24px;">
+        <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:12px; margin-bottom:24px;">
           <div class="stat-card"><div class="num" id="statComplaints">0</div><div class="label">Total Complaints</div></div>
           <div class="stat-card"><div class="num" style="color:var(--status-resolved);" id="statSuggestions">0</div><div class="label">Total Suggestions</div></div>
           <div class="stat-card"><div class="num" style="color:var(--status-pending);" id="statPending">0</div><div class="label">Pending</div></div>
           <div class="stat-card"><div class="num" style="color:var(--status-reviewed);" id="statReviewed">0</div><div class="label">Reviewed</div></div>
           <div class="stat-card"><div class="num" style="color:var(--status-resolved);" id="statResolved">0</div><div class="label">Resolved</div></div>
+          <div class="stat-card"><div class="num" style="color:#E53935;" id="statOverdue">0</div><div class="label">Overdue</div></div>
           <div class="stat-card"><div class="num" id="statTotal">0</div><div class="label">Total Records</div></div>
         </div>
 
@@ -117,13 +130,14 @@
           <span class="filter-pill" data-filter="pending">Pending</span>
           <span class="filter-pill" data-filter="reviewed">Reviewed</span>
           <span class="filter-pill" data-filter="resolved">Resolved</span>
+          <span class="filter-pill" data-filter="overdue">Overdue</span>
         </div>
 
         <div style="overflow-x:auto;">
           <table>
             <thead>
               <tr>
-                <th>ID</th><th>Type</th><th>Name</th><th>Email</th><th>Message</th><th>Date</th><th>Status</th><th>Actions</th>
+                <th>ID</th><th>Type</th><th>Name</th><th>Email</th><th>Message</th><th>Date</th><th>Due Date</th><th>Status</th><th>Actions</th>
               </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -190,7 +204,7 @@
 
   async function loadRecords() {
     const { data, error } = await supabaseClient
-      .from("submissions")
+      .from("submissions_with_sla")
       .select("*")
       .order("created_at", { ascending: false });
 
@@ -209,12 +223,14 @@
     const pending = allRecords.filter(r => (r.status || "pending") === "pending").length;
     const reviewed = allRecords.filter(r => r.status === "reviewed").length;
     const resolved = allRecords.filter(r => r.status === "resolved").length;
+    const overdue = allRecords.filter(r => r.is_overdue && r.status !== "resolved").length;
 
     document.getElementById("statComplaints").textContent = complaints;
     document.getElementById("statSuggestions").textContent = suggestions;
     document.getElementById("statPending").textContent = pending;
     document.getElementById("statReviewed").textContent = reviewed;
     document.getElementById("statResolved").textContent = resolved;
+    document.getElementById("statOverdue").textContent = overdue;
     document.getElementById("statTotal").textContent = allRecords.length;
   }
 
@@ -229,6 +245,18 @@
     return div.innerHTML;
   }
 
+  function dueDateBadge(record) {
+    if (record.status === "resolved") {
+      return `<span class="due-badge resolved">Resolved</span>`;
+    }
+    if (record.is_overdue) {
+      return `<span class="due-badge overdue">Overdue - ${formatDate(record.deadline)}</span>`;
+    }
+    const days = record.days_remaining;
+    const label = days === 1 ? "1 day left" : `${days} days left`;
+    return `<span class="due-badge on-track">${label}</span>`;
+  }
+
   function renderTable() {
     const search = document.getElementById("searchInput").value.trim().toLowerCase();
     const sort = document.getElementById("sortSelect").value;
@@ -238,6 +266,8 @@
         if (r.type !== activeFilter) return false;
       } else if (["pending", "reviewed", "resolved"].includes(activeFilter)) {
         if ((r.status || "pending") !== activeFilter) return false;
+      } else if (activeFilter === "overdue") {
+        if (!r.is_overdue || r.status === "resolved") return false;
       }
       if (search) {
         const haystack = `${r.name || ""} ${r.email || ""} ${r.description || ""}`.toLowerCase();
@@ -260,6 +290,7 @@
         <td>${escapeHtml(r.email) || "—"}</td>
         <td style="max-width:220px;">${escapeHtml((r.description || "").slice(0, 80))}</td>
         <td>${formatDate(r.created_at)}</td>
+        <td>${dueDateBadge(r)}</td>
         <td>
           <select class="status-select" onchange="updateStatus('${r.id}', this.value)">
             <option value="pending" ${r.status === "pending" || !r.status ? "selected" : ""}>Pending</option>
