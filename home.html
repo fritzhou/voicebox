@@ -123,31 +123,6 @@
     document.getElementById("statTotalSubmissions").textContent = stats.total_submissions;
     document.getElementById("statAvgResolution").textContent = stats.avg_resolution_days;
   }
-    const total = data.length;
-    const resolved = data.filter(r => r.status === "resolved");
-    const resolvedOnTime = resolved.filter(r => !r.is_overdue);
-
-    const resolvedRate = resolved.length > 0
-      ? Math.round((resolvedOnTime.length / resolved.length) * 100)
-      : 0;
-
-    // Average days between submission and deadline hit for resolved items
-    // (a rough proxy for turnaround, since we don't store resolved_at
-    // separately here - see status_history note below for a more precise version)
-    let avgDays = "—";
-    if (resolved.length > 0) {
-      const totalDays = resolved.reduce((sum, r) => {
-        const created = new Date(r.created_at);
-        const deadline = new Date(r.deadline);
-        return sum + (deadline - created) / (1000 * 60 * 60 * 24);
-      }, 0);
-      avgDays = (totalDays / resolved.length).toFixed(1);
-    }
-
-    document.getElementById("statResolvedRate").textContent = resolvedRate + "%";
-    document.getElementById("statTotalSubmissions").textContent = total;
-    document.getElementById("statAvgResolution").textContent = avgDays;
-  }
 
   loadHomeStats();
 </script>
