@@ -182,6 +182,51 @@
     margin-bottom: 20px;
     display: none;
   }
+
+  /* ===== Status History timeline ===== */
+  .history-step {
+    display: flex;
+    gap: 12px;
+  }
+  .history-step .dot-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .history-step .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #D9D9D9;
+    flex-shrink: 0;
+  }
+  .history-step .line {
+    width: 2px;
+    flex: 1;
+    background: var(--light-gray);
+    margin-top: 2px;
+  }
+  .history-step .content {
+    padding-bottom: 16px;
+  }
+  .history-step .step-label {
+    font-weight: 700;
+    font-size: 14px;
+    color: #BDBDBD;
+  }
+  .history-step .step-time {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+  .history-step .step-desc {
+    font-size: 13px;
+    color: #BDBDBD;
+    margin-top: 4px;
+  }
+  .history-step.reached .step-desc {
+    color: var(--text-secondary);
+  }
 </style>
 </head>
 <body>
@@ -267,6 +312,9 @@
       <div class="section-label">Description</div>
       <p class="desc-text" id="detailsDescription"></p>
 
+      <div class="section-label">Status History</div>
+      <div id="statusHistoryContainer" style="margin-bottom:20px;"></div>
+
       <div id="detailsReplySection" style="display:none;">
         <div class="section-label">Admin Reply</div>
         <div class="reply-box">
@@ -299,6 +347,12 @@
   function formatDate(iso) {
     const d = new Date(iso);
     return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  }
+
+  function formatDateTime(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) +
+      " at " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
   }
 
   async function loadSubmissions() {
@@ -347,7 +401,97 @@
     }).join("");
   }
 
-  function openDetails(index) {
+  function normalizeStatus(status) {
+    const s = (status || "").toLowerCase();
+    if (s === "resolved") return "resolved";
+    if (s === "reviewed" || s === "in review" || s === "in_review") return "reviewed";
+    return "pending";
+  }
+
+  async function fetchStatusHistory(submissionId) {
+    const { data, error } = await supabaseClient
+      .from("status_history")
+      .select("status, changed_at")
+      .eq("submission_id", submissionId);
+
+    if (error || !data) return {};
+
+    const result = {};
+    for (const row of data) {
+      const key = normalizeStatus(row.status);
+      const time = new Date(row.changed_at).getTime();
+      if (!result[key] || time < result[key]) {
+        result[key] = time;
+      }
+    }
+    return result;
+  }
+
+  function renderStatusHistory(normalizedStatus, type, fallbackTimestamp, history) {
+    const order = ["pending", "reviewed", "resolved"];
+    const currentIndex = order.indexOf(normalizedStatus);
+    const typeLower = type.toLowerCase();
+
+    const steps = [
+      {
+        key: "resolved",
+        label: "Resolved",
+        desc: `This ${typeLower} has been resolved.`
+      },
+      {
+        key: "reviewed",
+        label: "In Review",
+        desc: `Your ${typeLower} is under review.`
+      },
+      {
+        key: "pending",
+        label: "Pending",
+        desc: `Your ${typeLower} has been submitted.`
+      }
+    ];
+
+    return steps.map((step, i) => {
+      const stepIndex = order.indexOf(step.key);
+      const reached = stepIndex <= currentIndex;
+      const isLast = i === steps.length - 1;
+
+      let timeHtml = "";
+      if (reached) {
+        const realTime = history[step.key];
+        let timeText;
+        if (realTime) {
+          timeText = formatDateTime(realTime);
+        } else if (step.key === "pending") {
+          timeText = formatDateTime(fallbackTimestamp);
+        } else {
+          timeText = "Completed";
+        }
+        timeHtml = `<div class="step-time">${timeText}</div>`;
+      }
+
+      return `
+        <div class="history-step ${reached ? 'reached' : ''}">
+          <div class="dot-col">
+            <div class="dot" style="background:${reached ? dotColor(step.key) : '#D9D9D9'};"></div>
+            ${!isLast ? '<div class="line"></div>' : ''}
+          </div>
+          <div class="content">
+            <div class="step-label" style="color:${reached ? dotColor(step.key) : '#BDBDBD'};">${step.label}</div>
+            ${timeHtml}
+            <div class="step-desc">${reached ? step.desc : 'Not yet reached'}</div>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function dotColor(key) {
+    if (key === "resolved") return "#23C483";
+    if (key === "reviewed") return "#FFC107";
+    return "#9E9E9E";
+  }
+
+  async function openDetails(index) {
     const item = currentSubmissions[index];
     if (!item) return;
 
@@ -395,7 +539,16 @@
       replySection.style.display = "none";
     }
 
+    // Show a loading state immediately, then fill in real history
+    const historyContainer = document.getElementById("statusHistoryContainer");
+    historyContainer.innerHTML = `<p class="text-secondary" style="font-size:13px;">Loading history...</p>`;
+
     document.getElementById("detailsModal").style.display = "flex";
+
+    const normalized = normalizeStatus(item.status);
+    const history = await fetchStatusHistory(item.id);
+    const timestamp = new Date(item.created_at).getTime();
+    historyContainer.innerHTML = renderStatusHistory(normalized, item.type, timestamp, history);
   }
 
   function closeDetails() {
