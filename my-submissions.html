@@ -419,29 +419,6 @@
     }).join("");
   }
 
-    currentSubmissions = data;
-    emptyEl.style.display = "none";
-    listEl.innerHTML = data.map((item, index) => {
-      const showDeadlineBadge = item.status !== "resolved";
-      const deadlineBadge = showDeadlineBadge
-        ? item.is_overdue
-          ? `<span class="deadline-badge overdue">Overdue</span>`
-          : `<span class="deadline-badge on-track">${item.days_remaining} day${item.days_remaining === 1 ? '' : 's'} left</span>`
-        : "";
-      return `
-        <div class="submission-item" onclick="openDetails(${index})">
-          <div class="row-top">
-            <p class="desc">${escapeHtml(item.description).slice(0, 120)}</p>
-            <span class="status-badge status-${item.status || 'pending'}">${statusLabel[item.status] || 'Pending'}</span>
-          </div>
-          <div class="date">${formatDate(item.created_at)}</div>
-          ${deadlineBadge}
-          ${item.reply ? `<div class="divider"></div><p class="text-secondary" style="font-size:13px;"><strong>Reply:</strong> ${escapeHtml(item.reply)}</p>` : ""}
-        </div>
-      `;
-    }).join("");
-  }
-
   function normalizeStatus(status) {
     const s = (status || "").toLowerCase();
     if (s === "resolved") return "resolved";
