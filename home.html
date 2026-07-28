@@ -111,19 +111,18 @@
 <script src="supabase-client.js"></script>
 <script>
   async function loadHomeStats() {
-    // Public aggregate stats - no personal data, just counts and rates.
-    // This reads submissions_with_sla directly; if RLS blocks anonymous/
-    // public reads of other users' rows, this needs a dedicated public
-    // stats view or function instead (see note below).
-    const { data, error } = await supabaseClient
-      .from("submissions_with_sla")
-      .select("status, created_at, deadline, is_overdue");
+    const { data, error } = await supabaseClient.rpc("get_public_stats");
 
     if (error || !data || data.length === 0) {
       document.getElementById("statsStrip").style.display = "none";
       return;
     }
 
+    const stats = data[0];
+    document.getElementById("statResolvedRate").textContent = stats.resolved_rate + "%";
+    document.getElementById("statTotalSubmissions").textContent = stats.total_submissions;
+    document.getElementById("statAvgResolution").textContent = stats.avg_resolution_days;
+  }
     const total = data.length;
     const resolved = data.filter(r => r.status === "resolved");
     const resolvedOnTime = resolved.filter(r => !r.is_overdue);
