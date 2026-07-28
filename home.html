@@ -1,15 +1,41 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VoiceBox - Lourdes College TVL Portal</title>
 <link rel="stylesheet" href="app.css">
+<style>
+  .stats-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    max-width: 760px;
+    margin: 0 auto 32px;
+  }
+  .stat-box {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    padding: 20px 12px;
+    text-align: center;
+  }
+  .stat-box .stat-num {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    color: var(--primary);
+  }
+  .stat-box .stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    line-height: 1.3;
+  }
+</style>
 </head>
 <body>
-
 <div class="page">
-
   <nav class="navbar">
     <div class="container">
       <a href="index.html" class="nav-brand">
@@ -25,7 +51,6 @@
       </div>
     </div>
   </nav>
-
   <main>
     <div class="container narrow center" style="padding-top:56px; padding-bottom:24px;">
       <div class="eyebrow">We're Listening</div>
@@ -35,9 +60,25 @@
       </p>
     </div>
 
+    <div class="container" style="max-width:760px;">
+      <div class="stats-strip" id="statsStrip">
+        <div class="stat-box">
+          <div class="stat-num" id="statResolvedRate">—</div>
+          <div class="stat-label">Resolved on time this semester</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="statTotalSubmissions">—</div>
+          <div class="stat-label">Voices heard so far</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="statAvgResolution">—</div>
+          <div class="stat-label">Avg. days to resolve</div>
+        </div>
+      </div>
+    </div>
+
     <div class="container" style="max-width:760px; padding-bottom:24px;">
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-
         <a href="complaint.html" class="card-action complaint">
           <div class="icon-ring">
             <svg viewBox="0 0 24 24"><path d="M12,2L1,21h22L12,2z M13,16h-2v2h2V16z M13,10h-2v4h2V10z"/></svg>
@@ -48,7 +89,6 @@
             <svg viewBox="0 0 24 24"><path d="M4,11v2h12l-5.5,5.5 1.42,1.42L19.84,12l-7.92,-7.92L10.5,5.5 16,11z"/></svg>
           </span>
         </a>
-
         <a href="suggestion.html" class="card-action suggestion">
           <div class="icon-ring">
             <svg viewBox="0 0 24 24"><path d="M9,21c0,0.55 0.45,1 1,1h4c0.55,0 1,-0.45 1,-1v-1H9V21z M12,2C8.14,2 5,5.14 5,9c0,2.38 1.19,4.47 3,5.74V17c0,0.55 0.45,1 1,1h6c0.55,0 1,-0.45 1,-1v-2.26c1.81,-1.27 3,-3.36 3,-5.74C19,5.14 15.86,2 12,2z"/></svg>
@@ -59,20 +99,58 @@
             <svg viewBox="0 0 24 24"><path d="M4,11v2h12l-5.5,5.5 1.42,1.42L19.84,12l-7.92,-7.92L10.5,5.5 16,11z"/></svg>
           </span>
         </a>
-
       </div>
-
       <p class="text-secondary center" style="margin-top:32px; font-size:13px;">
         Every submission is important to us.
       </p>
     </div>
-
     <div class="spacer-lg"></div>
   </main>
-
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-client.js"></script>
+<script>
+  async function loadHomeStats() {
+    // Public aggregate stats - no personal data, just counts and rates.
+    // This reads submissions_with_sla directly; if RLS blocks anonymous/
+    // public reads of other users' rows, this needs a dedicated public
+    // stats view or function instead (see note below).
+    const { data, error } = await supabaseClient
+      .from("submissions_with_sla")
+      .select("status, created_at, deadline, is_overdue");
+
+    if (error || !data || data.length === 0) {
+      document.getElementById("statsStrip").style.display = "none";
+      return;
+    }
+
+    const total = data.length;
+    const resolved = data.filter(r => r.status === "resolved");
+    const resolvedOnTime = resolved.filter(r => !r.is_overdue);
+
+    const resolvedRate = resolved.length > 0
+      ? Math.round((resolvedOnTime.length / resolved.length) * 100)
+      : 0;
+
+    // Average days between submission and deadline hit for resolved items
+    // (a rough proxy for turnaround, since we don't store resolved_at
+    // separately here - see status_history note below for a more precise version)
+    let avgDays = "—";
+    if (resolved.length > 0) {
+      const totalDays = resolved.reduce((sum, r) => {
+        const created = new Date(r.created_at);
+        const deadline = new Date(r.deadline);
+        return sum + (deadline - created) / (1000 * 60 * 60 * 24);
+      }, 0);
+      avgDays = (totalDays / resolved.length).toFixed(1);
+    }
+
+    document.getElementById("statResolvedRate").textContent = resolvedRate + "%";
+    document.getElementById("statTotalSubmissions").textContent = total;
+    document.getElementById("statAvgResolution").textContent = avgDays;
+  }
+
+  loadHomeStats();
+</script>
 </body>
 </html>
