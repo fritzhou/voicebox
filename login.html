@@ -5,6 +5,65 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Log In - VoiceBox</title>
 <link rel="stylesheet" href="app.css">
+<style>
+  .terms-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(37,37,58,0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 20px;
+  }
+  .terms-modal-card {
+    width: 100%;
+    max-width: 480px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    padding: 24px;
+  }
+  .terms-modal-card h2 {
+    font-size: 18px;
+    color: var(--primary);
+    margin-bottom: 14px;
+  }
+  .terms-modal-body {
+    overflow-y: auto;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    flex: 1;
+    margin-bottom: 16px;
+  }
+  .terms-checkbox-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .terms-checkbox-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    accent-color: var(--primary);
+  }
+  .terms-checkbox-row label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    flex: 1;
+  }
+  .terms-checkbox-row .view-terms-link {
+    color: var(--primary);
+    font-weight: 700;
+    cursor: pointer;
+    margin-left: 6px;
+  }
+</style>
 </head>
 <body>
 
@@ -86,6 +145,16 @@
             </div>
           </div>
 
+          <div class="field" id="fieldTerms" style="display:none;">
+            <div class="terms-checkbox-row">
+              <input type="checkbox" id="checkboxTerms">
+              <label for="checkboxTerms">
+                I agree to the Terms &amp; Conditions
+                <span class="view-terms-link" onclick="openTermsModal(event)">View</span>
+              </label>
+            </div>
+          </div>
+
           <div class="field">
             <label>Email</label>
             <input type="email" id="inputEmail" placeholder="you@example.com">
@@ -122,6 +191,46 @@
 
 </div>
 
+<!-- ===== Terms & Conditions Modal ===== -->
+<div id="termsModal" class="terms-modal-overlay">
+  <div class="terms-modal-card">
+    <h2>Terms &amp; Conditions</h2>
+    <div class="terms-modal-body">Last updated: July 2026
+
+VoiceBox is a complaint and suggestion platform for Lourdes College students, built as a capstone project.
+
+1. WHAT WE COLLECT
+When you create an account, we collect your full name, email address, student number, grade level, and strand. When you submit a complaint or suggestion, we store the content you provide, along with the date and time. If you submit anonymously as a guest, we still collect a device identifier to prevent spam, but no personal account information.
+
+2. HOW WE USE YOUR INFORMATION
+Your information is used solely to operate VoiceBox: to associate submissions with your account, to notify you of status updates, and to allow school staff to review and respond to complaints and suggestions. We do not sell, rent, or share your information with any third party outside of Lourdes College's administration.
+
+3. WHO CAN SEE YOUR SUBMISSIONS
+Only you and authorized school staff (administrators) can view the content of your submissions. Other students cannot see your complaints, suggestions, or personal profile information. This is enforced at the database level through Row Level Security, not just through the app's interface.
+
+4. YOUR CONTROL OVER SUBMISSIONS
+You may edit or withdraw a submission within one hour of creating it, as long as it has not yet been reviewed. Once withdrawn, a submission cannot be reopened by anyone, including staff. After the one-hour window or once a submission has been reviewed, it can no longer be edited or withdrawn.
+
+5. ACCOUNT SECURITY
+You are responsible for keeping your password secure. If you suspect unauthorized access to your account, please contact the school administration immediately.
+
+6. ACCEPTABLE USE
+VoiceBox is intended for genuine complaints and suggestions related to school life. Do not use this platform to submit false reports, harassing content, or spam. To prevent abuse, submissions are limited to 5 per day per account or device.
+
+7. DATA RETENTION
+Your submissions and account information are retained for as long as your account remains active, or as required for the school's recordkeeping purposes.
+
+8. CHANGES TO THESE TERMS
+These terms may be updated from time to time. Continued use of VoiceBox after changes constitutes acceptance of the updated terms.
+
+9. CONTACT
+For questions about these terms or your data, please contact the Lourdes College administration.
+
+By creating an account, you acknowledge that you have read and agree to these terms.</div>
+    <button class="btn btn-primary btn-block" onclick="closeTermsModal()">Close</button>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-client.js"></script>
 <script>
@@ -132,6 +241,15 @@
   function showForm(which) {
     document.getElementById("choiceView").style.display = which === "choice" ? "block" : "none";
     document.getElementById("authView").style.display = which === "login" ? "block" : "none";
+  }
+
+  function openTermsModal(e) {
+    e.preventDefault();
+    document.getElementById("termsModal").style.display = "flex";
+  }
+
+  function closeTermsModal() {
+    document.getElementById("termsModal").style.display = "none";
   }
 
   function selectChip(button, type) {
@@ -157,7 +275,7 @@
     const submitLabel = document.querySelector("#btnSubmitAuth .btn-label");
     const togglePrompt = document.getElementById("togglePrompt");
 
-    ["fieldFullName", "fieldStudentNumber", "fieldGrade", "fieldStrand"].forEach(id => {
+    ["fieldFullName", "fieldStudentNumber", "fieldGrade", "fieldStrand", "fieldTerms"].forEach(id => {
       document.getElementById(id).style.display = isLoginMode ? "none" : "block";
     });
 
@@ -229,6 +347,11 @@
       }
       if (!selectedStrand) {
         showToast("Please select a strand");
+        valid = false;
+      }
+
+      if (!document.getElementById("checkboxTerms").checked) {
+        showToast("Please agree to the Terms & Conditions to continue");
         valid = false;
       }
     }
