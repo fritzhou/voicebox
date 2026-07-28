@@ -46,6 +46,17 @@
     border-radius: var(--radius-pill);
     white-space: nowrap;
   }
+
+  .status-cancelled-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: #F0F0F0;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 700;
+  }
+  
   .due-badge.overdue { background:#FFEBEE; color:#E53935; }
   .due-badge.on-track { background:#E8F5E9; color:#2E7D32; }
   .due-badge.resolved { background:#F0F0F0; color:var(--text-secondary); }
@@ -292,11 +303,14 @@
         <td>${formatDate(r.created_at)}</td>
         <td>${dueDateBadge(r)}</td>
         <td>
-          <select class="status-select" onchange="updateStatus('${r.id}', this.value)">
-            <option value="pending" ${r.status === "pending" || !r.status ? "selected" : ""}>Pending</option>
-            <option value="reviewed" ${r.status === "reviewed" ? "selected" : ""}>Reviewed</option>
-            <option value="resolved" ${r.status === "resolved" ? "selected" : ""}>Resolved</option>
-          </select>
+          ${r.status === "cancelled"
+            ? `<span class="status-cancelled-badge">Withdrawn</span>`
+            : `<select class="status-select" onchange="updateStatus('${r.id}', this.value)">
+                <option value="pending" ${r.status === "pending" || !r.status ? "selected" : ""}>Pending</option>
+                <option value="reviewed" ${r.status === "reviewed" ? "selected" : ""}>Reviewed</option>
+                <option value="resolved" ${r.status === "resolved" ? "selected" : ""}>Resolved</option>
+              </select>`
+          }
         </td>
         <td>
           <button class="icon-btn" onclick="viewRecord('${r.id}')" title="View">
