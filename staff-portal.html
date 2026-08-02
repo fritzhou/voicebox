@@ -56,10 +56,25 @@
     font-size: 12px;
     font-weight: 700;
   }
-  
+
   .due-badge.overdue { background:#FFEBEE; color:#E53935; }
   .due-badge.on-track { background:#E8F5E9; color:#2E7D32; }
   .due-badge.resolved { background:#F0F0F0; color:var(--text-secondary); }
+
+  .announce-field { margin-bottom:14px; }
+  .announce-field label { display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px; }
+  .announce-select,
+  .announce-input,
+  .announce-textarea {
+    width:100%;
+    padding:12px 14px;
+    border-radius:14px;
+    border:1.5px solid var(--light-gray);
+    font-family:inherit;
+    font-size:14px;
+    box-sizing:border-box;
+  }
+  .announce-textarea { resize:vertical; }
 </style>
 </head>
 <body>
@@ -123,6 +138,33 @@
           <div class="stat-card"><div class="num" style="color:var(--status-resolved);" id="statResolved">0</div><div class="label">Resolved</div></div>
           <div class="stat-card"><div class="num" style="color:#E53935;" id="statOverdue">0</div><div class="label">Overdue</div></div>
           <div class="stat-card"><div class="num" id="statTotal">0</div><div class="label">Total Records</div></div>
+        </div>
+
+        <!-- ===== Broadcast to Students ===== -->
+        <div class="card" style="margin-bottom:24px;">
+          <h2 style="font-size:18px; margin-bottom:4px;">Broadcast to Students</h2>
+          <p class="text-secondary" style="font-size:13px; margin-bottom:18px;">Send an announcement or app update notice to every student account. Admins are excluded.</p>
+          <form id="announcementForm">
+            <div class="announce-field">
+              <label>Type</label>
+              <select id="announceType" class="announce-select">
+                <option value="announcement">Announcement</option>
+                <option value="system">App Update</option>
+              </select>
+            </div>
+            <div class="announce-field">
+              <label>Title</label>
+              <input type="text" id="announceTitle" class="announce-input" placeholder="e.g. Announcement" maxlength="80">
+            </div>
+            <div class="announce-field">
+              <label>Message</label>
+              <textarea id="announceBody" class="announce-textarea" rows="3" placeholder="e.g. System maintenance will be on July 25, 2026 from 12:00 AM to 2:00 AM."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" id="btnSendAnnouncement" style="padding:12px 24px; font-size:13px;">
+              <span class="btn-label">Send to All Students</span>
+              <span class="spinner"></span>
+            </button>
+          </form>
         </div>
 
         <div style="display:flex; gap:12px; margin-bottom:16px; align-items:center;">
@@ -391,6 +433,36 @@
 
     alert("Deleted successfully");
 }
+
+  document.getElementById("announcementForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const type = document.getElementById("announceType").value;
+    const title = document.getElementById("announceTitle").value.trim();
+    const body = document.getElementById("announceBody").value.trim();
+    const button = document.getElementById("btnSendAnnouncement");
+
+    if (!title || !body) {
+      showToast("Please fill in both title and message.");
+      return;
+    }
+
+    setButtonLoading(button, true, "Sending...");
+
+    try {
+      const { data, error } = await supabaseClient.functions.invoke("send-notification", {
+        body: { mode: "broadcast", type, title, body }
+      });
+      if (error) throw error;
+      showToast(`Sent to ${data?.notified ?? 0} students.`);
+      document.getElementById("announcementForm").reset();
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || "Failed to send announcement.");
+    } finally {
+      setButtonLoading(button, false);
+      document.querySelector("#btnSendAnnouncement .btn-label").textContent = "Send to All Students";
+    }
+  });
 
   document.querySelectorAll(".filter-pill").forEach(pill => {
     pill.addEventListener("click", () => {
