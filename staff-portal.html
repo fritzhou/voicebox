@@ -204,8 +204,6 @@
 
 </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-client.js"></script>
 <script>
@@ -451,7 +449,7 @@
     setButtonLoading(button, true, "Sending...");
 
     try {
-      const { data, error } = await supabaseClient.functions.invoke("send-notification", {
+      const { data, error } = await supabaseClient.functions.invoke("rapid-processoro", {
         body: { mode: "broadcast", type, title, body }
       });
       if (error) throw error;
