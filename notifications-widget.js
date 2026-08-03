@@ -55,7 +55,7 @@
   }
 
   async function loadNotifications(userId) {
-    const { data, error } = await window.supabaseClient
+    const { data, error } = await supabaseClient
       .from("notifications")
       .select("*")
       .eq("user_id", userId)
@@ -103,23 +103,23 @@
   }
 
   async function markAsRead(notificationId) {
-    await window.supabaseClient
+    await supabaseClient
       .from("notifications")
       .update({ is_read: true })
       .eq("id", notificationId);
   }
 
   async function markAllAsRead(userId) {
-    await window.supabaseClient
+    await supabaseClient
       .from("notifications")
       .update({ is_read: true })
       .eq("user_id", userId);
   }
 
   async function init() {
-    if (!window.supabaseClient) return;
+    if (typeof supabaseClient === "undefined") return;
 
-    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    const { data: { session } } = await supabaseClient.auth.getSession();
     if (!session || !session.user) return; // no bell for guests
 
     const accountLink = document.getElementById("navAccountLink");
