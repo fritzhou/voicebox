@@ -40,10 +40,10 @@
         <a href="#download" class="btn btn-solid">⬇ Download APK</a>
         <a href="#how" class="btn btn-outline">See how it works</a>
       </div>
-      <div class="hero-stats">
-        <div class="stat"><b>2</b><span>Feedback types</span></div>
-        <div class="stat"><b>100%</b><span>Student-built</span></div>
-        <div class="stat"><b>1</b><span>Tap to submit</span></div>
+      <div class="hero-stats" id="heroStats">
+        <div class="stat"><b id="statResolvedRate">—</b><span>Resolved this semester</span></div>
+        <div class="stat"><b id="statTotalSubmissions">—</b><span>Voices heard so far</span></div>
+        <div class="stat"><b id="statAvgResolution">—</b><span>Avg. days to resolve</span></div>
       </div>
     </div>
 
@@ -223,5 +223,31 @@
   </div>
 </footer>
 </body>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
 <script src="script.js"></script>
+<script>
+  async function loadLandingStats() {
+    try {
+      const { data, error } = await supabaseClient.rpc("get_public_stats");
+
+      if (error || !data || data.length === 0) {
+        // Fall back to placeholder text if the call fails, rather than showing blank dashes.
+        document.getElementById("statResolvedRate").textContent = "—";
+        document.getElementById("statTotalSubmissions").textContent = "—";
+        document.getElementById("statAvgResolution").textContent = "—";
+        return;
+      }
+
+      const stats = data[0];
+      document.getElementById("statResolvedRate").textContent = stats.resolved_rate + "%";
+      document.getElementById("statTotalSubmissions").textContent = stats.total_submissions;
+      document.getElementById("statAvgResolution").textContent = stats.avg_resolution_days;
+    } catch (e) {
+      console.error("Failed to load landing page stats:", e);
+    }
+  }
+
+  loadLandingStats();
+</script>
 </html>
