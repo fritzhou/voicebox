@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VoiceBox - Lourdes College TVL Portal</title>
 <link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="notifications-widget.css">
+
 <style>
   .stats-strip {
     display: grid;
@@ -109,6 +111,7 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-client.js"></script>
+<script src="notifications-widget.js"></script>
 <script>
   async function loadHomeStats() {
     const { data, error } = await supabaseClient.rpc("get_public_stats");
