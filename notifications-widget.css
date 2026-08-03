@@ -4,7 +4,6 @@
   align-items: center;
   margin-left: 12px;
 }
-
 .notif-bell-btn {
   position: relative;
   background: var(--light-gray, #EDEDF5);
