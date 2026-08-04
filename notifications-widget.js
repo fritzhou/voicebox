@@ -197,17 +197,17 @@
   }
 
   async function fetchSubmissionInfo(submissionId) {
-    try {
-      const { data, error } = await supabaseClient
-        .from("submissions")
-        .select("type, created_at")
-        .eq("id", submissionId)
-        .single();
-      if (error || !data) return null;
-      return data;
-    } catch (e) {
-      return null;
-    }
+  try {
+    const { data, error } = await supabaseClient
+      .from("submissions")
+      .select("type, created_at, reference_no")
+      .eq("id", submissionId)
+      .single();
+    if (error || !data) return null;
+    return data;
+  } catch (e) {
+    return null;
+  }
   }
 
   async function init() {
@@ -280,25 +280,27 @@
       modalMarkRead.style.display = notif.is_read ? "none" : "block";
 
       if (notif.submission_id) {
-        modalInfoCard.style.display = "block";
-        modalSubId.textContent = "#" + notif.submission_id.slice(0, 8);
-        modalDetails.textContent = "Loading details...";
-        modalSubType.textContent = "—";
-        modalSubDate.textContent = "—";
+  modalInfoCard.style.display = "block";
+  modalSubId.textContent = "Loading...";
+  modalDetails.textContent = "Loading details...";
+  modalSubType.textContent = "—";
+  modalSubDate.textContent = "—";
 
-        const info = await fetchSubmissionInfo(notif.submission_id);
-        if (info) {
-          const typeLabel = info.type || "submission";
-          modalSubType.textContent = typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1);
-          modalTypeIcon.textContent = typeLabel === "suggestion" ? "💡" : "❗";
-          modalSubDate.textContent = formatFullDate(info.created_at);
-          modalDetails.textContent = detailsTextFor(notif.type, typeLabel);
-        } else {
-          modalDetails.textContent = notif.body;
-        }
-      } else {
-        modalInfoCard.style.display = "none";
-        modalDetails.textContent = notif.body;
+  const info = await fetchSubmissionInfo(notif.submission_id);
+  if (info) {
+    modalSubId.textContent = info.reference_no || ("#" + notif.submission_id.slice(0, 8));
+    const typeLabel = info.type || "submission";
+    modalSubType.textContent = typeLabel.charAt(0).toUpperCase() + typeLabel.slice(1);
+    modalTypeIcon.textContent = typeLabel === "suggestion" ? "💡" : "❗";
+    modalSubDate.textContent = formatFullDate(info.created_at);
+    modalDetails.textContent = detailsTextFor(notif.type, typeLabel);
+  } else {
+    modalSubId.textContent = "#" + notif.submission_id.slice(0, 8);
+    modalDetails.textContent = notif.body;
+  }
+} else {
+  modalInfoCard.style.display = "none";
+  modalDetails.textContent = notif.body;
       }
 
       modalOverlay.style.display = "flex";
