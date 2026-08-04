@@ -129,7 +129,8 @@ main {
 }
 
 .nav-links a.account-link {
-  color: var(--primary);
+    background: var(--primary);
+  color: var(--white);
   border: 1.5px solid var(--nav-indicator-light);
 }
 
