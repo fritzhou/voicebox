@@ -124,13 +124,17 @@ main {
 }
 
 .nav-links a.active {
-  background: var(--primary);
-  color: var(--white);
+    background: var(--nav-indicator-light);
+  color: var(--primary);
+}
+
+.nav-links a.account-link:hover {
+    color: var(--nav-indicator-light);
 }
 
 .nav-links a.account-link {
-    background: var(--primary);
-  color: var(--white);
+  background:var(--primary);
+color:var(--light-gray);
   border: 1.5px solid var(--nav-indicator-light);
 }
 
