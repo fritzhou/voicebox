@@ -6,13 +6,9 @@
 <title>Submit a Suggestion - VoiceBox</title>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="notifications-widget.css">
-
-
 </head>
 <body>
-
 <div class="page">
-
   <nav class="navbar">
     <div class="container">
       <a href="index.html" class="nav-brand">
@@ -28,7 +24,6 @@
       </div>
     </div>
   </nav>
-
   <main>
     <div class="container narrow center" style="padding-top:48px;">
       <div class="hero-badge small" style="background:var(--suggestion);">
@@ -36,47 +31,39 @@
       </div>
       <h1 style="font-size:24px; margin-bottom:8px;">Submit a Suggestion</h1>
       <p class="text-secondary" style="margin-bottom:28px;">Share an idea that could help us do better.</p>
-
       <form id="suggestionForm" class="card" style="text-align:left;">
         <div class="field">
           <label id="labelName">Name <span class="optional">(Optional)</span></label>
           <input type="text" id="inputName" placeholder="Your name">
         </div>
-
         <div class="field">
           <label id="labelEmail">Email <span class="optional">(Optional)</span></label>
           <input type="email" id="inputEmail" placeholder="you@example.com">
           <div class="error-msg">Enter a valid email address.</div>
         </div>
-
         <div class="field">
           <label>Suggestion <span class="optional">(Required)</span></label>
           <textarea id="inputDetails" placeholder="Share your idea in detail..."></textarea>
           <div class="error-msg">Please share your suggestion.</div>
         </div>
-
         <div class="field">
   <label for="inputPhoto">Photo <span class="optional">(Optional)</span></label>
-
   <label for="inputPhoto" class="photo-upload-btn">
     <svg viewBox="0 0 24 24" class="photo-icon">
         <path fill="currentColor" d="M9 3L7.17 5H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.17L15 3H9zm3 15a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/>
     </svg>
     <span>Add Photo</span>
 </label>
-
   <input
     type="file"
     id="inputPhoto"
     accept="image/*"
     hidden
   >
-
   <span id="photoFileName" class="file-name">
     No photo selected
   </span>
 </div>
-
         <button type="submit" class="btn btn-block" id="btnSubmit" style="background:var(--suggestion); color:white;">
           <span class="btn-label">Submit Suggestion</span>
           <span class="spinner"></span>
@@ -85,17 +72,16 @@
     </div>
     <div class="spacer-lg"></div>
   </main>
-
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="notifications-widget.js"></script>
 <script src="supabase-client.js"></script>
 <script>
+  const MAX_PHOTO_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+
   function isValidEmail(email) {
     return email === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
-
   function getDeviceId() {
     let deviceId = localStorage.getItem("voicebox_device_id");
     if (!deviceId) {
@@ -104,63 +90,54 @@
     }
     return deviceId;
   }
-
   async function prefillIfLoggedIn() {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (!session) return;
-
     const nameInput = document.getElementById("inputName");
     const emailInput = document.getElementById("inputEmail");
     const nameLabel = document.getElementById("labelName");
     const emailLabel = document.getElementById("labelEmail");
-
     emailInput.value = session.user.email || "";
     emailInput.disabled = true;
     emailLabel.innerHTML = "Email";
-
     const { data: profile } = await supabaseClient
       .from("profiles")
       .select("full_name")
       .eq("id", session.user.id)
       .single();
-
     nameInput.value = (profile && profile.full_name) || "";
     nameInput.disabled = true;
     nameLabel.innerHTML = "Name";
   }
-
   document.getElementById("suggestionForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-
     const name = document.getElementById("inputName").value.trim();
     const email = document.getElementById("inputEmail").value.trim();
     const details = document.getElementById("inputDetails").value.trim();
     const photoFile = document.getElementById("inputPhoto").files[0];
     let valid = true;
-
     if (!isValidEmail(email)) {
       document.getElementById("inputEmail").parentElement.classList.add("has-error");
       valid = false;
     } else {
       document.getElementById("inputEmail").parentElement.classList.remove("has-error");
     }
-
     if (!details) {
       document.getElementById("inputDetails").parentElement.classList.add("has-error");
       valid = false;
     } else {
       document.getElementById("inputDetails").parentElement.classList.remove("has-error");
     }
-
+    if (photoFile && photoFile.size > MAX_PHOTO_SIZE_BYTES) {
+      showToast("Photo is too large. Please choose one under 5MB.");
+      valid = false;
+    }
     if (!valid) return;
-
     const button = document.getElementById("btnSubmit");
     setButtonLoading(button, true, "Submitting...");
-
     try {
       const { data: { session } } = await supabaseClient.auth.getSession();
       const userId = session ? session.user.id : null;
-
       let imageUrl = "";
       if (photoFile) {
         const fileName = "suggestions/" + crypto.randomUUID() + "-" + photoFile.name;
@@ -168,13 +145,11 @@
           .from("voicebox-images")
           .upload(fileName, photoFile);
         if (uploadError) throw uploadError;
-
         const { data: publicUrlData } = supabaseClient.storage
           .from("voicebox-images")
           .getPublicUrl(fileName);
         imageUrl = publicUrlData.publicUrl;
       }
-
       const { error } = await supabaseClient.from("submissions").insert({
         type: "suggestion",
         title: details.slice(0, 60),
@@ -186,7 +161,6 @@
         device_id: getDeviceId()
       });
       if (error) throw error;
-
       window.location.href = "thank-you.html?type=suggestion";
     } catch (err) {
       setButtonLoading(button, false);
@@ -194,18 +168,22 @@
       showToast(err.message || "Something went wrong. Please try again.");
     }
   });
-
   const inputPhoto = document.getElementById("inputPhoto");
 const photoFileName = document.getElementById("photoFileName");
-
 inputPhoto.addEventListener("change", () => {
   if (inputPhoto.files.length) {
-    photoFileName.textContent = inputPhoto.files[0].name;
+    const file = inputPhoto.files[0];
+    if (file.size > MAX_PHOTO_SIZE_BYTES) {
+      showToast("Photo is too large. Please choose one under 5MB.");
+      inputPhoto.value = "";
+      photoFileName.textContent = "No photo selected";
+      return;
+    }
+    photoFileName.textContent = file.name;
   } else {
     photoFileName.textContent = "No photo selected";
   }
 });
-
   prefillIfLoggedIn();
 </script>
 </body>
