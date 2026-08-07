@@ -86,6 +86,118 @@
     color: var(--text-secondary);
     font-size: 12px;
   }
+
+  /* ===== Admin View Modal ===== */
+  .admin-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(37,37,58,0.55);
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 20px;
+  }
+  .admin-modal-card {
+    width: 100%;
+    max-width: 520px;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: var(--white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+  }
+  .admin-modal-header {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    padding: 22px 24px 18px;
+    color: white;
+    position: relative;
+  }
+  .admin-modal-header .close-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .admin-modal-header .close-btn svg { width: 16px; height: 16px; fill: white; }
+  .admin-modal-header .id-line {
+    font-size: 12px;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 6px;
+  }
+  .admin-modal-header h2 {
+    font-size: 18px;
+    color: white;
+    margin: 0;
+  }
+  .admin-modal-body { padding: 24px; }
+  .admin-modal-body .section-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    margin-top: 20px;
+  }
+  .admin-modal-body .section-label:first-child { margin-top: 0; }
+  .admin-modal-body .info-row {
+    display: flex;
+    gap: 8px;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .admin-modal-body .info-row .info-label {
+    color: var(--text-secondary);
+    min-width: 50px;
+  }
+  .admin-modal-body .desc-text {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+  .admin-modal-body .reply-box {
+    background: var(--nav-indicator-light);
+    border-radius: 14px;
+    padding: 14px;
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+  .admin-modal-body .no-reply {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+  .admin-modal-photo {
+    width: 100%;
+    border-radius: 14px;
+    display: block;
+  }
+  .admin-modal-body .rating-stars-large {
+    color: #F5A623;
+    font-size: 20px;
+    letter-spacing: 2px;
+  }
+  .admin-modal-body .rating-comment {
+    font-size: 13px;
+    color: var(--text-secondary);
+    background: var(--nav-indicator-light);
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 8px;
+  }
 </style>
 </head>
 <body>
@@ -213,6 +325,43 @@
     <div class="spacer-lg"></div>
   </main>
 
+</div>
+
+<!-- ===== Admin View Record Modal ===== -->
+<div id="adminViewModal" class="admin-modal-overlay">
+  <div class="admin-modal-card">
+    <div class="admin-modal-header">
+      <button class="close-btn" onclick="closeAdminModal()">
+        <svg viewBox="0 0 24 24"><path d="M19,6.41L17.59,5 12,10.59 6.41,5 5,6.41 10.59,12 5,17.59 6.41,19 12,13.41 17.59,19 19,17.59 13.41,12z"/></svg>
+      </button>
+      <div class="id-line" id="adminModalIdLine"></div>
+      <h2 id="adminModalTitle"></h2>
+    </div>
+    <div class="admin-modal-body">
+
+      <div class="section-label">Submitted By</div>
+      <div class="info-row"><span class="info-label">Name</span><span id="adminModalName"></span></div>
+      <div class="info-row"><span class="info-label">Email</span><span id="adminModalEmail"></span></div>
+
+      <div class="section-label">Description</div>
+      <p class="desc-text" id="adminModalDescription"></p>
+
+      <div id="adminModalPhotoSection" style="display:none;">
+        <div class="section-label">Attached Photo</div>
+        <img id="adminModalPhoto" class="admin-modal-photo" src="" alt="Submission photo">
+      </div>
+
+      <div class="section-label">Admin Reply</div>
+      <div id="adminModalReplyContainer"></div>
+
+      <div id="adminModalRatingSection" style="display:none;">
+        <div class="section-label">Student Rating</div>
+        <div class="rating-stars-large" id="adminModalStars"></div>
+        <div id="adminModalRatingComment"></div>
+      </div>
+
+    </div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -438,16 +587,49 @@
     const record = allRecords.find(r => r.id === id);
     if (!record) return;
     const rating = ratingsMap[id];
-    const ratingText = rating
-      ? `Rating: ${"★".repeat(rating.rating)}${"☆".repeat(5 - rating.rating)}${rating.comment ? `\nComment: "${rating.comment}"` : ""}`
-      : "No rating yet.";
-    alert(
-      `#${record.id} - ${record.type}\n\n` +
-      `Name: ${record.name || "—"}\nEmail: ${record.email || "—"}\n\n` +
-      `${record.description}\n\n` +
-      (record.reply ? `Reply: ${record.reply}\n\n` : "No reply yet.\n\n") +
-      ratingText
-    );
+
+    document.getElementById("adminModalIdLine").textContent =
+      `#${record.id} · ${record.type === "complaint" ? "Complaint" : "Suggestion"}`;
+    document.getElementById("adminModalTitle").textContent =
+      record.reference_no || `#${(record.id || "").toString().slice(0, 8)}`;
+
+    document.getElementById("adminModalName").textContent = record.name || "—";
+    document.getElementById("adminModalEmail").textContent = record.email || "—";
+    document.getElementById("adminModalDescription").textContent = record.description || "";
+
+    const photoSection = document.getElementById("adminModalPhotoSection");
+    const photoEl = document.getElementById("adminModalPhoto");
+    if (record.image_url) {
+      photoEl.src = record.image_url;
+      photoSection.style.display = "block";
+    } else {
+      photoSection.style.display = "none";
+    }
+
+    const replyContainer = document.getElementById("adminModalReplyContainer");
+    if (record.reply) {
+      replyContainer.innerHTML = `<div class="reply-box">${escapeHtml(record.reply)}</div>`;
+    } else {
+      replyContainer.innerHTML = `<p class="no-reply">No reply yet.</p>`;
+    }
+
+    const ratingSection = document.getElementById("adminModalRatingSection");
+    if (rating) {
+      ratingSection.style.display = "block";
+      document.getElementById("adminModalStars").textContent =
+        "★".repeat(rating.rating) + "☆".repeat(5 - rating.rating);
+      document.getElementById("adminModalRatingComment").innerHTML = rating.comment
+        ? `<div class="rating-comment">${escapeHtml(rating.comment)}</div>`
+        : "";
+    } else {
+      ratingSection.style.display = "none";
+    }
+
+    document.getElementById("adminViewModal").style.display = "flex";
+  }
+
+  function closeAdminModal() {
+    document.getElementById("adminViewModal").style.display = "none";
   }
 
   async function deleteRecord(id) {
@@ -527,5 +709,3 @@
 </script>
 </body>
 </html>
-
-  
