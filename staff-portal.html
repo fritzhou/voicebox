@@ -370,6 +370,7 @@
   let allRecords = [];
   let ratingsMap = {};
   let activeFilter = "all";
+  let currentViewId = null;
 
   document.getElementById("staffLoginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -588,6 +589,8 @@
     if (!record) return;
     const rating = ratingsMap[id];
 
+    currentViewId = record.id;
+
     document.getElementById("adminModalIdLine").textContent =
       `#${record.id} · ${record.type === "complaint" ? "Complaint" : "Suggestion"}`;
     document.getElementById("adminModalTitle").textContent =
@@ -607,11 +610,15 @@
     }
 
     const replyContainer = document.getElementById("adminModalReplyContainer");
-    if (record.reply) {
-      replyContainer.innerHTML = `<div class="reply-box">${escapeHtml(record.reply)}</div>`;
-    } else {
-      replyContainer.innerHTML = `<p class="no-reply">No reply yet.</p>`;
-    }
+    replyContainer.innerHTML = `
+      <textarea id="adminModalReplyInput" class="announce-textarea" rows="3"
+        placeholder="Write a reply to the student...">${escapeHtml(record.reply || "")}</textarea>
+      <button class="btn btn-primary" id="btnSaveReply" onclick="saveReply()"
+        style="padding:10px 20px; font-size:13px; margin-top:10px;">
+        <span class="btn-label">Save Reply</span>
+        <span class="spinner"></span>
+      </button>
+    `;
 
     const ratingSection = document.getElementById("adminModalRatingSection");
     if (rating) {
@@ -628,8 +635,39 @@
     document.getElementById("adminViewModal").style.display = "flex";
   }
 
+  async function saveReply() {
+    if (!currentViewId) return;
+
+    const textarea = document.getElementById("adminModalReplyInput");
+    const newReply = textarea.value.trim();
+    const button = document.getElementById("btnSaveReply");
+
+    setButtonLoading(button, true, "Saving...");
+
+    try {
+      const { error } = await supabaseClient
+        .from("submissions")
+        .update({ reply: newReply })
+        .eq("id", currentViewId);
+
+      if (error) throw error;
+
+      const record = allRecords.find(r => r.id === currentViewId);
+      if (record) record.reply = newReply;
+
+      showToast("Reply saved.");
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || "Failed to save reply.");
+    } finally {
+      setButtonLoading(button, false);
+      document.querySelector("#btnSaveReply .btn-label").textContent = "Save Reply";
+    }
+  }
+
   function closeAdminModal() {
     document.getElementById("adminViewModal").style.display = "none";
+    currentViewId = null;
   }
 
   async function deleteRecord(id) {
