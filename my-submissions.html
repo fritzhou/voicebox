@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Submissions - VoiceBox</title>
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="notifications-widget.css">
+
+<style>
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--light-gray);
+    margin-bottom: 24px;
+  }
+  .tabs button {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 14px 0 12px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+  }
+  .tabs button.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+  .submission-item {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    padding: 18px;
+    margin-bottom: 14px;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .submission-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  }
+  .submission-item .row-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .submission-item .desc {
+    font-size: 14px;
+    color: var(--text);
+    margin: 0 0 6px;
+  }
+  .submission-item .date {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .empty-icon {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: var(--nav-indicator-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .empty-icon svg { width: 40px; height: 40px; fill: var(--primary); }
+
+  .deadline-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 20px;
+    margin-top: 6px;
+  }
+  .deadline-badge.overdue {
+    background: #FFEBEE;
+    color: #E53935;
+  }
+  .deadline-badge.on-track {
+    background: #E8F5E9;
+    color: #2E7D32;
+  }
+
+  /* ===== Details Modal ===== */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(37,37,58,0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+  .details-card {
+    width: 100%;
+    max-width: 480px;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: var(--white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+  }
+  .details-header {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    padding: 24px 24px 20px;
+    color: white;
+    position: relative;
+  }
+  .details-header .close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .details-header .close-btn svg { width: 16px; height: 16px; fill: white; }
+  .details-header .icon-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+  .details-header .icon-circle svg { width: 24px; height: 24px; fill: white; }
+  .details-header h2 {
+    font-size: 18px;
+    color: white;
+    margin: 0 0 4px;
+  }
+  .details-header .sub-date {
+    font-size: 13px;
+    color: rgba(255,255,255,0.85);
+  }
+  .details-body { padding: 24px; }
+  .details-body .section-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .details-body .desc-text {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    margin-bottom: 20px;
+  }
+  .details-body .reply-box {
+    background: var(--nav-indicator-light);
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 8px;
+  }
+  .details-body .reply-box p {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.6;
+    margin: 0;
+    white-space: pre-wrap;
+  }
+  .details-photo {
+    width: 100%;
+    border-radius: 14px;
+    margin-bottom: 20px;
+    display: none;
+  }
+
+  /* ===== Status History timeline ===== */
+  .history-step {
+    display: flex;
+    gap: 12px;
+  }
+  .history-step .dot-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .history-step .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #D9D9D9;
+    flex-shrink: 0;
+  }
+  .history-step .line {
+    width: 2px;
+    flex: 1;
+    background: var(--light-gray);
+    margin-top: 2px;
+  }
+  .history-step .content {
+    padding-bottom: 16px;
+  }
+  .history-step .step-label {
+    font-weight: 700;
+    font-size: 14px;
+    color: #BDBDBD;
+  }
+  .history-step .step-time {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+  .history-step .step-desc {
+    font-size: 13px;
+    color: #BDBDBD;
+    margin-top: 4px;
+  }
+  .history-step.reached .step-desc {
+    color: var(--text-secondary);
+  }
+
+  /* ===== Rating section ===== */
+  .rating-section {
+    border-top: 1px solid var(--light-gray);
+    padding-top: 20px;
+    margin-top: 20px;
+  }
+  .star-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .star-row.readonly { pointer-events: none; }
+  .star-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    line-height: 0;
+  }
+  .star-btn svg {
+    width: 30px;
+    height: 30px;
+    fill: #E0E0E0;
+    transition: fill 0.1s ease;
+  }
+  .star-btn svg.filled {
+    fill: #FFC107;
+  }
+  .rating-comment-input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--light-gray);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    resize: vertical;
+    min-height: 60px;
+    margin-bottom: 12px;
+  }
+  .rating-readonly-comment {
+    font-size: 13px;
+    color: var(--text-secondary);
+    background: var(--nav-indicator-light);
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 4px;
+  }
+  .rating-submitted-note {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+
+  /* ===== Edit / Withdraw section ===== */
+  .manage-section {
+    border-top: 1px solid var(--light-gray);
+    padding-top: 20px;
+    margin-top: 20px;
+  }
+  .manage-actions {
+    display: flex;
+    gap: 10px;
+  }
+  .manage-actions .btn {
+    flex: 1;
+    padding: 10px 0;
+    font-size: 13px;
+  }
+  .btn-danger-outline {
+    background: none;
+    border: 1.5px solid #E53935;
+    color: #E53935;
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .edit-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--light-gray);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    resize: vertical;
+    min-height: 100px;
+    margin-bottom: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-brand">
+        <span class="logo-badge">
+          <svg viewBox="0 0 60 62"><g transform="translate(-24,-23)"><path fill-rule="evenodd" d="M67.70,26.45 L57.81,23.63 L50.47,23.63 L45.10,24.76 L35.49,29.56 L30.69,34.08 L27.87,38.04 L24.48,47.36 L24.48,57.25 L25.89,62.62 L28.43,67.70 L31.26,71.38 L38.04,77.59 L37.75,79.85 L35.49,83.52 L35.78,84.37 L38.04,84.37 L46.51,80.98 L56.97,81.55 L65.16,79.57 L73.35,74.77 L80.13,67.14 L82.39,62.33 L83.81,56.68 L83.24,45.10 L78.16,34.93 L73.35,30.13 Z M37.19,42.56 L40.30,39.45 L44.25,38.04 L64.03,38.04 L66.29,38.60 L68.83,40.01 L70.81,41.99 L72.51,45.10 L72.79,57.81 L72.22,59.51 L69.96,62.62 L65.73,65.16 L52.16,65.16 L43.97,70.25 L42.56,69.12 L42.27,65.44 L40.01,64.03 L37.19,61.20 L35.78,57.81 L35.78,46.23 Z"/></g></svg>
+        </span>
+        <span style="color:#EC1561;">Voice</span><span style="color:#3A323F;">Box</span>
+      </a>
+      <div class="nav-links">
+        <a href="home.html"><span class="label">Home</span></a>
+        <a href="my-submissions.html" class="active"><span class="label">My Submissions</span></a>
+        <a href="login.html" id="navAccountLink" class="account-link">Log In</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container narrow" style="padding-top:40px;">
+
+      <!-- ===== Not logged in ===== -->
+      <div id="notLoggedInState" class="center" style="display:none;">
+        <div class="empty-icon">
+          <svg viewBox="0 0 24 24"><path d="M12,12c2.21,0 4,-1.79 4,-4s-1.79,-4 -4,-4 -4,1.79 -4,4 1.79,4 4,4zM12,14c-2.67,0 -8,1.34 -8,4v2h16v-2c0,-2.66 -5.33,-4 -8,-4z"/></svg>
+        </div>
+        <h2 style="font-size:18px; margin-bottom:8px;">Log in to view your submissions</h2>
+        <p class="text-secondary" style="margin-bottom:24px;">Your submissions are only saved to your account when you're signed in.</p>
+        <a href="login.html" class="btn btn-primary btn-block">Log In / Sign Up</a>
+      </div>
+
+      <!-- ===== Logged in ===== -->
+      <div id="loggedInState" style="display:none;">
+        <h1 style="font-size:22px; margin-bottom:20px;">My Submissions</h1>
+
+        <div class="tabs">
+          <button id="tabComplaints" class="active" onclick="switchTab('complaint')">Complaints</button>
+          <button id="tabSuggestions" onclick="switchTab('suggestion')">Suggestions</button>
+        </div>
+
+        <div id="submissionsList"></div>
+
+        <div id="emptyState" class="center" style="display:none; padding-top:40px;">
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24"><path d="M14,2H6C4.9,2,4,2.9,4,4v16c0,1.1,0.9,2,2,2h12c1.1,0,2-0.9,2-2V8L14,2z M13,9V3.5L18.5,9H13z"/></svg>
+          </div>
+          <p id="emptyStateTitle" style="font-weight:700; margin-bottom:6px;">No submissions yet.</p>
+          <p id="emptyStateSubtitle" class="text-secondary">Your complaints will appear here.</p>
+        </div>
+      </div>
+
+    </div>
+    <div class="spacer-lg"></div>
+  </main>
+
+</div>
+
+<!-- ===== Submission Details Modal ===== -->
+<div id="detailsModal" class="modal-overlay">
+  <div class="details-card">
+    <div class="details-header">
+      <button class="close-btn" onclick="closeDetails()">
+        <svg viewBox="0 0 24 24"><path d="M19,6.41L17.59,5 12,10.59 6.41,5 5,6.41 10.59,12 5,17.59 6.41,19 12,13.41 17.59,19 19,17.59 13.41,12z"/></svg>
+      </button>
+      <div class="icon-circle" id="detailsIconCircle">
+        <svg id="detailsIconComplaint" viewBox="0 0 24 24" style="display:none;"><path d="M12,2L1,21h22L12,2z M13,16h-2v2h2V16z M13,10h-2v4h2V10z"/></svg>
+        <svg id="detailsIconSuggestion" viewBox="0 0 24 24" style="display:none;"><path d="M9,21c0,0.55 0.45,1 1,1h4c0.55,0 1,-0.45 1,-1v-1H9V21z M12,2C8.14,2 5,5.14 5,9c0,2.38 1.19,4.47 3,5.74V17c0,0.55 0.45,1 1,1h6c0.55,0 1,-0.45 1,-1v-2.26c1.81,-1.27 3,-3.36 3,-5.74C19,5.14 15.86,2 12,2z"/></svg>
+      </div>
+      <h2 id="detailsTitle">Complaint</h2>
+      <div class="sub-date" id="detailsDate"></div>
+      <div style="margin-top:10px;">
+        <span class="status-badge" id="detailsStatusBadge" style="background:rgba(255,255,255,0.25); color:white;"></span>
+        <span class="status-badge" id="detailsDeadlineBadge" style="margin-left:6px;"></span>
+      </div>
+    </div>
+    <div class="details-body">
+      <img id="detailsPhoto" class="details-photo" src="" alt="Submission photo">
+
+      <div class="section-label">Description</div>
+      <p class="desc-text" id="detailsDescription"></p>
+
+      <div class="section-label">Status History</div>
+      <div id="statusHistoryContainer" style="margin-bottom:20px;"></div>
+
+      <div id="detailsReplySection" style="display:none;">
+        <div class="section-label">Admin Reply</div>
+        <div class="reply-box">
+          <p id="detailsReply"></p>
+        </div>
+      </div>
+
+      <div id="ratingSection" class="rating-section" style="display:none;"></div>
+
+      <div id="manageSection" class="manage-section" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="notifications-widget.js"></script>
+<script src="supabase-client.js"></script>
+<script>
+  let currentTab = "complaint";
+  let currentSubmissions = [];
+  let currentDetailItem = null;
+  let selectedRatingValue = 0;
+
+  const statusLabel = {
+    pending: "Pending",
+    reviewed: "Reviewed",
+    resolved: "Resolved",
+    cancelled: "Withdrawn"
+  };
+
+  const STAR_SVG = `<svg viewBox="0 0 24 24"><path d="M12,17.27L18.18,21l-1.64,-7.03L22,9.24l-7.19,-0.61L12,2 9.19,8.63 2,9.24l5.46,4.73L5.82,21z"/></svg>`;
+
+  function switchTab(type) {
+    currentTab = type;
+    document.getElementById("tabComplaints").classList.toggle("active", type === "complaint");
+    document.getElementById("tabSuggestions").classList.toggle("active", type === "suggestion");
+    loadSubmissions();
+  }
+
+  function formatDate(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  }
+
+  function formatDateTime(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) +
+      " at " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  }
+
+  async function loadSubmissions() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) return;
+
+    const listEl = document.getElementById("submissionsList");
+    const emptyEl = document.getElementById("emptyState");
+
+    let data, error;
+    try {
+      const result = await supabaseClient
+        .from("submissions_with_sla")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .eq("type", currentTab)
+        .order("created_at", { ascending: false });
+      data = result.data;
+      error = result.error;
+    } catch (networkErr) {
+      error = networkErr;
+    }
+
+    if (error) {
+      currentSubmissions = [];
+      listEl.innerHTML = "";
+      emptyEl.style.display = "block";
+      document.getElementById("emptyStateTitle").textContent = "Couldn't load your submissions";
+      document.getElementById("emptyStateSubtitle").innerHTML =
+        `Check your internet connection and try again.<br><button class="btn btn-primary" style="margin-top:14px; padding:10px 24px; font-size:13px;" onclick="loadSubmissions()">Retry</button>`;
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      currentSubmissions = [];
+      listEl.innerHTML = "";
+      emptyEl.style.display = "block";
+      document.getElementById("emptyStateTitle").textContent = "No submissions yet.";
+      document.getElementById("emptyStateSubtitle").innerHTML =
+        currentTab === "complaint" ? "Your complaints will appear here." : "Your suggestions will appear here.";
+      return;
+    }
+
+    currentSubmissions = data;
+    emptyEl.style.display = "none";
+    listEl.innerHTML = data.map((item, index) => {
+      const showDeadlineBadge = item.status !== "resolved" && item.status !== "cancelled";
+      const deadlineBadge = showDeadlineBadge
+        ? item.is_overdue
+          ? `<span class="deadline-badge overdue">Overdue</span>`
+          : `<span class="deadline-badge on-track">${item.days_remaining} day${item.days_remaining === 1 ? '' : 's'} left</span>`
+        : "";
+      return `
+        <div class="submission-item" onclick="openDetails(${index})">
+          <div class="row-top">
+            <p class="desc">${escapeHtml(item.description).slice(0, 120)}</p>
+            <span class="status-badge status-${item.status || 'pending'}">${statusLabel[item.status] || 'Pending'}</span>
+          </div>
+          <div class="date">${formatDate(item.created_at)}</div>
+          ${deadlineBadge}
+          ${item.reply ? `<div class="divider"></div><p class="text-secondary" style="font-size:13px;"><strong>Reply:</strong> ${escapeHtml(item.reply)}</p>` : ""}
+        </div>
+      `;
+    }).join("");
+  }
+
+  function normalizeStatus(status) {
+    const s = (status || "").toLowerCase();
+    if (s === "resolved") return "resolved";
+    if (s === "reviewed" || s === "in review" || s === "in_review") return "reviewed";
+    return "pending";
+  }
+
+  async function fetchStatusHistory(submissionId) {
+    const { data, error } = await supabaseClient
+      .from("status_history")
+      .select("status, changed_at")
+      .eq("submission_id", submissionId);
+
+    if (error || !data) return {};
+
+    const result = {};
+    for (const row of data) {
+      const key = normalizeStatus(row.status);
+      const time = new Date(row.changed_at).getTime();
+      if (!result[key] || time < result[key]) {
+        result[key] = time;
+      }
+    }
+    return result;
+  }
+
+  function renderStatusHistory(normalizedStatus, type, fallbackTimestamp, history) {
+    const order = ["pending", "reviewed", "resolved"];
+    const currentIndex = order.indexOf(normalizedStatus);
+    const typeLower = type.toLowerCase();
+
+    const steps = [
+      {
+        key: "resolved",
+        label: "Resolved",
+        desc: `This ${typeLower} has been resolved.`
+      },
+      {
+        key: "reviewed",
+        label: "In Review",
+        desc: `Your ${typeLower} is under review.`
+      },
+      {
+        key: "pending",
+        label: "Pending",
+        desc: `Your ${typeLower} has been submitted.`
+      }
+    ];
+
+    return steps.map((step, i) => {
+      const stepIndex = order.indexOf(step.key);
+      const reached = stepIndex <= currentIndex;
+      const isLast = i === steps.length - 1;
+
+      let timeHtml = "";
+      if (reached) {
+        const realTime = history[step.key];
+        let timeText;
+        if (realTime) {
+          timeText = formatDateTime(realTime);
+        } else if (step.key === "pending") {
+          timeText = formatDateTime(fallbackTimestamp);
+        } else {
+          timeText = "Completed";
+        }
+        timeHtml = `<div class="step-time">${timeText}</div>`;
+      }
+
+      return `
+        <div class="history-step ${reached ? 'reached' : ''}">
+          <div class="dot-col">
+            <div class="dot" style="background:${reached ? dotColor(step.key) : '#D9D9D9'};"></div>
+            ${!isLast ? '<div class="line"></div>' : ''}
+          </div>
+          <div class="content">
+            <div class="step-label" style="color:${reached ? dotColor(step.key) : '#BDBDBD'};">${step.label}</div>
+            ${timeHtml}
+            <div class="step-desc">${reached ? step.desc : 'Not yet reached'}</div>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function dotColor(key) {
+    if (key === "resolved") return "#23C483";
+    if (key === "reviewed") return "#FFC107";
+    return "#9E9E9E";
+  }
+
+  // ===== Ratings =====
+
+  function renderStars(container, filledCount, interactive) {
+    container.innerHTML = "";
+    container.className = "star-row" + (interactive ? "" : " readonly");
+    for (let i = 1; i <= 5; i++) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "star-btn";
+      btn.innerHTML = STAR_SVG;
+      const svg = btn.querySelector("svg");
+      if (i <= filledCount) svg.classList.add("filled");
+
+      if (interactive) {
+        btn.onclick = () => {
+          selectedRatingValue = i;
+          renderStars(container, i, true);
+        };
+      }
+      container.appendChild(btn);
+    }
+  }
+
+  async function loadRatingSection(item) {
+    const section = document.getElementById("ratingSection");
+
+    if (item.status !== "resolved") {
+      section.style.display = "none";
+      section.innerHTML = "";
+      return;
+    }
+
+    section.style.display = "block";
+    section.innerHTML = `<div class="section-label">Rating</div><p class="text-secondary" style="font-size:13px;">Loading...</p>`;
+
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) {
+      section.style.display = "none";
+      return;
+    }
+
+    const { data: existingRating } = await supabaseClient
+      .from("submission_ratings")
+      .select("rating, comment")
+      .eq("submission_id", item.id)
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+
+    if (existingRating) {
+      section.innerHTML = `
+        <div class="section-label">Your Rating</div>
+        <div id="readonlyStarRow"></div>
+        ${existingRating.comment ? `<div class="rating-readonly-comment">${escapeHtml(existingRating.comment)}</div>` : ""}
+        <div class="rating-submitted-note">Thanks for your feedback!</div>
+      `;
+      renderStars(document.getElementById("readonlyStarRow"), existingRating.rating, false);
+    } else {
+      selectedRatingValue = 0;
+      section.innerHTML = `
+        <div class="section-label">Rate this resolution</div>
+        <div id="promptStarRow"></div>
+        <textarea id="ratingCommentInput" class="rating-comment-input" placeholder="Optional comment..."></textarea>
+        <button class="btn btn-primary" id="btnSubmitRating" style="padding:10px 24px; font-size:13px;">Submit Rating</button>
+      `;
+      renderStars(document.getElementById("promptStarRow"), 0, true);
+      document.getElementById("btnSubmitRating").onclick = () => submitRating(item.id);
+    }
+  }
+
+  async function submitRating(submissionId) {
+    if (selectedRatingValue < 1) {
+      alert("Please select a star rating before submitting.");
+      return;
+    }
+
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) return;
+
+    const comment = document.getElementById("ratingCommentInput").value.trim();
+    const submitBtn = document.getElementById("btnSubmitRating");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting...";
+
+    const { error } = await supabaseClient
+      .from("submission_ratings")
+      .insert({
+        submission_id: submissionId,
+        user_id: session.user.id,
+        rating: selectedRatingValue,
+        comment: comment || null
+      });
+
+    if (error) {
+      alert("Couldn't submit your rating. Please try again.");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Submit Rating";
+      return;
+    }
+
+    const item = currentSubmissions.find(s => s.id === submissionId);
+    if (item) await loadRatingSection(item);
+  }
+
+  // ===== Edit / Withdraw =====
+
+  function loadManageSection(item) {
+    const section = document.getElementById("manageSection");
+
+    // The enforce_student_edit_limits trigger blocks any update once a
+    // submission is no longer pending, regardless of which column is
+    // being changed - so edit/withdraw are only ever offered here.
+    if (item.status !== "pending") {
+      section.style.display = "none";
+      section.innerHTML = "";
+      return;
+    }
+
+    section.style.display = "block";
+    renderManageActions(item);
+  }
+
+  function renderManageActions(item) {
+    const section = document.getElementById("manageSection");
+    section.innerHTML = `
+      <div class="section-label">Manage Submission</div>
+      <div class="manage-actions">
+        <button class="btn btn-outline" id="btnStartEdit">Edit</button>
+        <button class="btn-danger-outline" id="btnWithdraw">Withdraw</button>
+      </div>
+    `;
+    document.getElementById("btnStartEdit").onclick = () => renderEditForm(item);
+    document.getElementById("btnWithdraw").onclick = () => withdrawSubmission(item);
+  }
+
+  function renderEditForm(item) {
+    const section = document.getElementById("manageSection");
+    section.innerHTML = `
+      <div class="section-label">Edit Description</div>
+      <textarea id="editDescriptionInput" class="edit-textarea">${escapeHtml(item.description)}</textarea>
+      <div class="manage-actions">
+        <button class="btn btn-outline" id="btnCancelEdit">Cancel</button>
+        <button class="btn btn-primary" id="btnSaveEdit">Save Changes</button>
+      </div>
+    `;
+    document.getElementById("btnCancelEdit").onclick = () => renderManageActions(item);
+    document.getElementById("btnSaveEdit").onclick = () => saveEdit(item);
+  }
+
+  async function saveEdit(item) {
+    const newDescription = document.getElementById("editDescriptionInput").value.trim();
+    if (!newDescription) {
+      alert("Description can't be empty.");
+      return;
+    }
+
+    const saveBtn = document.getElementById("btnSaveEdit");
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Saving...";
+
+    const { error } = await supabaseClient
+      .from("submissions")
+      .update({ description: newDescription })
+      .eq("id", item.id);
+
+    if (error) {
+      alert(error.message || "Couldn't save your changes. Please try again.");
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Save Changes";
+      return;
+    }
+
+    item.description = newDescription;
+    document.getElementById("detailsDescription").textContent = newDescription;
+
+    const listItem = currentSubmissions.find(s => s.id === item.id);
+    if (listItem) listItem.description = newDescription;
+
+    renderManageActions(item);
+    loadSubmissions();
+  }
+
+  async function withdrawSubmission(item) {
+    if (!confirm("Withdraw this submission? This can't be undone.")) return;
+
+    const { error } = await supabaseClient
+      .from("submissions")
+      .update({ status: "cancelled" })
+      .eq("id", item.id);
+
+    if (error) {
+      alert(error.message || "Couldn't withdraw your submission. Please try again.");
+      return;
+    }
+
+    closeDetails();
+    loadSubmissions();
+  }
+
+  async function openDetails(index) {
+    const item = currentSubmissions[index];
+    if (!item) return;
+    currentDetailItem = item;
+
+    const isComplaint = item.type === "complaint";
+    document.getElementById("detailsIconComplaint").style.display = isComplaint ? "block" : "none";
+    document.getElementById("detailsIconSuggestion").style.display = isComplaint ? "none" : "block";
+    document.getElementById("detailsTitle").textContent = isComplaint ? "Complaint" : "Suggestion";
+
+    document.getElementById("detailsDate").textContent = formatDate(item.created_at);
+
+    const badge = document.getElementById("detailsStatusBadge");
+    badge.textContent = statusLabel[item.status] || "Pending";
+
+    const deadlineBadge = document.getElementById("detailsDeadlineBadge");
+    if (item.status !== "resolved" && item.status !== "cancelled") {
+      deadlineBadge.style.display = "inline-block";
+      if (item.is_overdue) {
+        deadlineBadge.textContent = "Overdue";
+        deadlineBadge.style.background = "rgba(255,255,255,0.25)";
+        deadlineBadge.style.color = "#FFCDD2";
+      } else {
+        deadlineBadge.textContent = `${item.days_remaining} day${item.days_remaining === 1 ? '' : 's'} left`;
+        deadlineBadge.style.background = "rgba(255,255,255,0.25)";
+        deadlineBadge.style.color = "white";
+      }
+    } else {
+      deadlineBadge.style.display = "none";
+    }
+
+    document.getElementById("detailsDescription").textContent = item.description || "";
+
+    const photo = document.getElementById("detailsPhoto");
+    if (item.image_url) {
+      photo.src = item.image_url;
+      photo.style.display = "block";
+    } else {
+      photo.style.display = "none";
+    }
+
+    const replySection = document.getElementById("detailsReplySection");
+    if (item.reply) {
+      document.getElementById("detailsReply").textContent = item.reply;
+      replySection.style.display = "block";
+    } else {
+      replySection.style.display = "none";
+    }
+
+    // Show a loading state immediately, then fill in real history
+    const historyContainer = document.getElementById("statusHistoryContainer");
+    historyContainer.innerHTML = `<p class="text-secondary" style="font-size:13px;">Loading history...</p>`;
+
+    document.getElementById("detailsModal").style.display = "flex";
+
+    const normalized = normalizeStatus(item.status);
+    const history = await fetchStatusHistory(item.id);
+    const timestamp = new Date(item.created_at).getTime();
+    historyContainer.innerHTML = renderStatusHistory(normalized, item.type, timestamp, history);
+
+    loadRatingSection(item);
+    loadManageSection(item);
+  }
+
+  function closeDetails() {
+    document.getElementById("detailsModal").style.display = "none";
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str || "";
+    return div.innerHTML;
+  }
+
+  async function init() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) {
+      document.getElementById("loggedInState").style.display = "block";
+      document.getElementById("notLoggedInState").style.display = "none";
+      loadSubmissions();
+    } else {
+      document.getElementById("loggedInState").style.display = "none";
+      document.getElementById("notLoggedInState").style.display = "block";
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
