@@ -645,6 +645,8 @@
     setButtonLoading(button, true, "Saving...");
 
     try {
+      const record = allRecords.find(r => r.id === currentViewId);
+
       const { error } = await supabaseClient
         .from("submissions")
         .update({ reply: newReply })
@@ -652,8 +654,26 @@
 
       if (error) throw error;
 
-      const record = allRecords.find(r => r.id === currentViewId);
       if (record) record.reply = newReply;
+
+      // Notify the student in-app only (bell icon dropdown + My Submissions).
+      // No push notification - just a row in the notifications table that
+      // both the web widget and the Android NotificationsBottomSheet already read.
+      if (record && record.user_id) {
+        const { error: notifError } = await supabaseClient
+          .from("notifications")
+          .insert({
+            user_id: record.user_id,
+            submission_id: currentViewId,
+            type: "admin_reply",
+            title: "You have a new reply",
+            body: newReply.length > 100 ? newReply.slice(0, 100) + "…" : newReply
+          });
+
+        if (notifError) {
+          console.error("Failed to create notification:", notifError);
+        }
+      }
 
       showToast("Reply saved.");
     } catch (err) {
