@@ -35,13 +35,10 @@ body {
 }
 
 h1, h2, h3, .display {
-
-    margin:0;
-    font-size:18px;
-    font-weight:800;
-    line-height:1.1;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  margin: 0;
 }
-
 
 /* ---------- Layout shell ---------- */
 .page {
@@ -81,12 +78,18 @@ main {
 .nav-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
   text-decoration: none;
   color: var(--primary);
   font-family: 'Poppins', sans-serif;
   font-weight: 700;
   font-size: 20px;
+}
+
+.nav-brand h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
 }
 
 .nav-brand .logo-badge {
@@ -97,6 +100,7 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-right: 10px;
 }
 
 .nav-brand .logo-badge svg {
