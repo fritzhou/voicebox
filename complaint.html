@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Submit a Complaint - VoiceBox</title>
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="notifications-widget.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-brand">
+        <span class="logo-badge">
+          <svg viewBox="0 0 60 62"><g transform="translate(-24,-23)"><path fill-rule="evenodd" d="M67.70,26.45 L57.81,23.63 L50.47,23.63 L45.10,24.76 L35.49,29.56 L30.69,34.08 L27.87,38.04 L24.48,47.36 L24.48,57.25 L25.89,62.62 L28.43,67.70 L31.26,71.38 L38.04,77.59 L37.75,79.85 L35.49,83.52 L35.78,84.37 L38.04,84.37 L46.51,80.98 L56.97,81.55 L65.16,79.57 L73.35,74.77 L80.13,67.14 L82.39,62.33 L83.81,56.68 L83.24,45.10 L78.16,34.93 L73.35,30.13 Z M37.19,42.56 L40.30,39.45 L44.25,38.04 L64.03,38.04 L66.29,38.60 L68.83,40.01 L70.81,41.99 L72.51,45.10 L72.79,57.81 L72.22,59.51 L69.96,62.62 L65.73,65.16 L52.16,65.16 L43.97,70.25 L42.56,69.12 L42.27,65.44 L40.01,64.03 L37.19,61.20 L35.78,57.81 L35.78,46.23 Z"/></g></svg>
+        </span>
+        <span style="color:#EC1561;">Voice</span><span style="color:#3A323F;">Box</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html"><span class="label">Home</span></a>
+        <a href="my-submissions.html"><span class="label">My Submissions</span></a>
+        <a href="login.html" id="navAccountLink" class="account-link">Log In</a>
+      </div>
+    </div>
+  </nav>
+  <main>
+    <div class="container narrow center" style="padding-top:48px;">
+      <div class="hero-badge small">
+        <svg viewBox="0 0 24 24"><path d="M12,2L1,21h22L12,2z M13,16h-2v2h2V16z M13,10h-2v4h2V10z"/></svg>
+      </div>
+      <h1 style="font-size:24px; margin-bottom:8px;">Submit a Complaint</h1>
+      <p class="text-secondary" style="margin-bottom:28px;">We take every complaint seriously. Tell us what happened.</p>
+      <form id="complaintForm" class="card" style="text-align:left;">
+        <div class="field">
+          <label id="labelName">Name <span class="optional">(Optional)</span></label>
+          <input type="text" id="inputName" placeholder="Your name">
+        </div>
+        <div class="field">
+          <label id="labelEmail">Email <span class="optional">(Optional)</span></label>
+          <input type="email" id="inputEmail" placeholder="you@example.com">
+          <div class="error-msg">Enter a valid email address.</div>
+        </div>
+        <div class="field">
+          <label>Complaint <span class="optional">(Required)</span></label>
+          <textarea id="inputDetails" placeholder="Describe your complaint in detail..."></textarea>
+          <div class="error-msg">Please describe your complaint.</div>
+        </div>
+        <div class="field">
+  <label for="inputPhoto">Photo <span class="optional">(Optional)</span></label>
+  <label for="inputPhoto" class="photo-upload-btn">
+    <svg viewBox="0 0 24 24" class="photo-icon">
+        <path fill="currentColor" d="M9 3L7.17 5H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.17L15 3H9zm3 15a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/>
+    </svg>
+    <span>Add Photo</span>
+</label>
+  <input
+    type="file"
+    id="inputPhoto"
+    accept="image/*"
+    hidden
+  >
+  <span id="photoFileName" class="file-name">
+    No photo selected
+  </span>
+</div>
+        <button type="submit" class="btn btn-primary btn-block" id="btnSubmit">
+          <span class="btn-label">Submit Complaint</span>
+          <span class="spinner"></span>
+        </button>
+      </form>
+    </div>
+    <div class="spacer-lg"></div>
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="notifications-widget.js"></script>
+<script src="supabase-client.js"></script>
+<script>
+  const MAX_PHOTO_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+
+  function isValidEmail(email) {
+    return email === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+  function getDeviceId() {
+    let deviceId = localStorage.getItem("voicebox_device_id");
+    if (!deviceId) {
+      deviceId = crypto.randomUUID();
+      localStorage.setItem("voicebox_device_id", deviceId);
+    }
+    return deviceId;
+  }
+  let isLoggedIn = false;
+  async function prefillIfLoggedIn() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) return;
+    isLoggedIn = true;
+    const nameInput = document.getElementById("inputName");
+    const emailInput = document.getElementById("inputEmail");
+    const nameLabel = document.getElementById("labelName");
+    const emailLabel = document.getElementById("labelEmail");
+    emailInput.value = session.user.email || "";
+    emailInput.disabled = true;
+    emailLabel.innerHTML = "Email";
+    const { data: profile } = await supabaseClient
+      .from("profiles")
+      .select("full_name")
+      .eq("id", session.user.id)
+      .single();
+    nameInput.value = (profile && profile.full_name) || "";
+    nameInput.disabled = true;
+    nameLabel.innerHTML = "Name";
+  }
+  document.getElementById("complaintForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = document.getElementById("inputName").value.trim();
+    const email = document.getElementById("inputEmail").value.trim();
+    const details = document.getElementById("inputDetails").value.trim();
+    const photoFile = document.getElementById("inputPhoto").files[0];
+    let valid = true;
+    if (!isValidEmail(email)) {
+      document.getElementById("inputEmail").parentElement.classList.add("has-error");
+      valid = false;
+    } else {
+      document.getElementById("inputEmail").parentElement.classList.remove("has-error");
+    }
+    if (!details) {
+      document.getElementById("inputDetails").parentElement.classList.add("has-error");
+      valid = false;
+    } else {
+      document.getElementById("inputDetails").parentElement.classList.remove("has-error");
+    }
+    if (photoFile && photoFile.size > MAX_PHOTO_SIZE_BYTES) {
+      showToast("Photo is too large. Please choose one under 5MB.");
+      valid = false;
+    }
+    if (!valid) return;
+    const button = document.getElementById("btnSubmit");
+    setButtonLoading(button, true, "Submitting...");
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const userId = session ? session.user.id : null;
+      let imageUrl = "";
+      if (photoFile) {
+        const fileName = "complaints/" + crypto.randomUUID() + "-" + photoFile.name;
+        const { error: uploadError } = await supabaseClient.storage
+          .from("voicebox-images")
+          .upload(fileName, photoFile);
+        if (uploadError) throw uploadError;
+        const { data: publicUrlData } = supabaseClient.storage
+          .from("voicebox-images")
+          .getPublicUrl(fileName);
+        imageUrl = publicUrlData.publicUrl;
+      }
+      const { error } = await supabaseClient.from("submissions").insert({
+        type: "complaint",
+        title: details.slice(0, 60),
+        description: details,
+        name: name,
+        email: email,
+        user_id: userId,
+        image_url: imageUrl,
+        device_id: getDeviceId()
+      });
+      if (error) throw error;
+      window.location.href = "thank-you.html?type=complaint";
+    } catch (err) {
+      setButtonLoading(button, false);
+      document.querySelector("#btnSubmit .btn-label").textContent = "Submit Complaint";
+      showToast(err.message || "Something went wrong. Please try again.");
+    }
+  });
+  const inputPhoto = document.getElementById("inputPhoto");
+const photoFileName = document.getElementById("photoFileName");
+inputPhoto.addEventListener("change", () => {
+  if (inputPhoto.files.length) {
+    const file = inputPhoto.files[0];
+    if (file.size > MAX_PHOTO_SIZE_BYTES) {
+      showToast("Photo is too large. Please choose one under 5MB.");
+      inputPhoto.value = "";
+      photoFileName.textContent = "No photo selected";
+      return;
+    }
+    photoFileName.textContent = file.name;
+  } else {
+    photoFileName.textContent = "No photo selected";
+  }
+});
+  prefillIfLoggedIn();
+</script>
+</body>
+</html>
