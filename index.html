@@ -118,12 +118,39 @@
   <link rel="icon"
         href="/favicon.ico">
 
+  <!-- Inter: the font used in the VoiceBox app (phone mockup) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap">
+
   <link rel="stylesheet"
         href="index.css">
 
 </head>
 
 <body>
+
+<!-- =====================================================
+     ICON SPRITE (used by the phone mockup)
+     ===================================================== -->
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="vb-mail" viewBox="0 0 24 24"><path d="M20,4H4c-1.1,0 -1.99,0.9 -1.99,2L2,18c0,1.1 0.9,2 2,2h16c1.1,0 2,-0.9 2,-2V6c0,-1.1 -0.9,-2 -2,-2zM20,8l-8,5 -8,-5V6l8,5 8,-5v2z"/></symbol>
+  <symbol id="vb-mic" viewBox="0 0 24 24"><path d="M12,14c1.66,0 3,-1.34 3,-3V5c0,-1.66 -1.34,-3 -3,-3S9,3.34 9,5v6C9,12.66 10.34,14 12,14z M17,11c0,2.76 -2.24,5 -5,5s-5,-2.24 -5,-5H5c0,3.53 2.61,6.43 6,6.92V21h2v-3.08c3.39,-0.49 6,-3.39 6,-6.92H17z"/></symbol>
+  <symbol id="vb-alert" viewBox="0 0 24 24"><path d="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM11,7h2v7h-2z"/><circle cx="12" cy="16" r="1.2"/></symbol>
+  <symbol id="vb-bulb" viewBox="0 0 24 24"><path d="M9,21h6v-1H9v1zM12,2C8.14,2 5,5.14 5,9c0,2.38 1.19,4.47 3,5.74V17c0,0.55 0.45,1 1,1h6c0.55,0 1,-0.45 1,-1v-2.26c1.81,-1.27 3,-3.36 3,-5.74C19,5.14 15.86,2 12,2z"/></symbol>
+  <symbol id="vb-users" viewBox="0 0 24 24"><path d="M16,11c1.66,0 2.99,-1.34 2.99,-3S17.66,5 16,5c-1.66,0 -3,1.34 -3,3s1.34,3 3,3zM8,11c1.66,0 2.99,-1.34 2.99,-3S9.66,5 8,5C6.34,5 5,6.34 5,8s1.34,3 3,3zM8,13c-2.33,0 -7,1.17 -7,3.5V19h14v-2.5c0,-2.33 -4.67,-3.5 -7,-3.5zM16,13c-0.29,0 -0.62,0.02 -0.97,0.05 1.16,0.84 1.97,1.97 1.97,3.45V19h6v-2.5c0,-2.33 -4.67,-3.5 -7,-3.5z"/></symbol>
+  <symbol id="vb-bolt" viewBox="0 0 24 24"><path d="M11,21h-1l1,-7H7.5c-0.88,0 -0.33,-0.75 -0.31,-0.78C8.48,10.94 10.42,7.54 13.01,3h1l-1,7h3.51c0.4,0 0.62,0.19 0.4,0.66C12.97,17.55 11,21 11,21z"/></symbol>
+  <symbol id="vb-clock" viewBox="0 0 24 24"><path d="M11.99,2C6.47,2 2,6.48 2,12s4.47,10 9.99,10C17.52,22 22,17.52 22,12S17.52,2 11.99,2zM12,20c-4.42,0 -8,-3.58 -8,-8s3.58,-8 8,-8 8,3.58 8,8 -3.58,8 -8,8zM12.5,7H11v6l5.25,3.15 0.75,-1.23 -4.5,-2.67z"/></symbol>
+  <symbol id="vb-arrow" viewBox="0 0 24 24"><path d="M4,11v2h12l-5.5,5.5 1.42,1.42L19.84,12l-7.92,-7.92L10.5,5.5 16,11z"/></symbol>
+  <symbol id="vb-chev" viewBox="0 0 24 24"><path d="M8.59,16.59L13.17,12L8.59,7.41L10,6l6,6l-6,6l-1.41,-1.41z"/></symbol>
+  <symbol id="vb-heart" viewBox="0 0 24 24"><path d="M12,21.35l-1.45,-1.32C5.4,15.36 2,12.28 2,8.5C2,5.42 4.42,3 7.5,3c1.74,0 3.41,0.81 4.5,2.09C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.42 22,8.5c0,3.78 -3.4,6.86 -8.55,11.54L12,21.35z"/></symbol>
+  <symbol id="vb-heart-o" viewBox="0 0 24 24"><path d="M16.5,3c-1.74,0 -3.41,0.81 -4.5,2.09C10.91,3.81 9.24,3 7.5,3 4.42,3 2,5.42 2,8.5c0,3.78 3.4,6.86 8.55,11.54L12,21.35l1.45,-1.32C18.6,15.36 22,12.28 22,8.5 22,5.42 19.58,3 16.5,3zM12.1,18.55l-0.1,0.1 -0.1,-0.1C7.14,14.24 4,11.39 4,8.5 4,6.5 5.5,5 7.5,5c1.54,0 3.04,0.99 3.57,2.36h1.87C13.46,5.99 14.96,5 16.5,5c2,0 3.5,1.5 3.5,3.5 0,2.89 -3.14,5.74 -7.9,10.05z"/></symbol>
+  <symbol id="vb-home" viewBox="0 0 24 24"><path d="M10,20v-6h4v6h5v-8h3L12,3 2,12h3v8z"/></symbol>
+  <symbol id="vb-list" viewBox="0 0 24 24"><path d="M3,5h2v2H3zM7,5h14v2H7zM3,11h2v2H3zM7,11h14v2H7zM3,17h2v2H3zM7,17h14v2H7z"/></symbol>
+  <symbol id="vb-person" viewBox="0 0 24 24"><path d="M12,12c2.21,0 4,-1.79 4,-4s-1.79,-4 -4,-4 -4,1.79 -4,4 1.79,4 4,4zM12,14c-2.67,0 -8,1.34 -8,4v2h16v-2c0,-2.66 -5.33,-4 -8,-4z"/></symbol>
+</svg>
 
 <!-- =====================================================
      HEADER
@@ -138,65 +165,9 @@
       <div class="logo-icon">
 
         <svg viewBox="0 0 60 62">
-
           <g transform="translate(-24,-23)">
-
-            <path
-              fill-rule="evenodd"
-              d="M67.70,26.45
-              L57.81,23.63
-              L50.47,23.63
-              L45.10,24.76
-              L35.49,29.56
-              L30.69,34.08
-              L27.87,38.04
-              L24.48,47.36
-              L24.48,57.25
-              L25.89,62.62
-              L28.43,67.70
-              L31.26,71.38
-              L38.04,77.59
-              L37.75,79.85
-              L35.49,83.52
-              L35.78,84.37
-              L38.04,84.37
-              L46.51,80.98
-              L56.97,81.55
-              L65.16,79.57
-              L73.35,74.77
-              L80.13,67.14
-              L82.39,62.33
-              L83.81,56.68
-              L83.24,45.10
-              L78.16,34.93
-              L73.35,30.13
-              Z
-
-              M37.19,42.56
-              L40.30,39.45
-              L44.25,38.04
-              L64.03,38.04
-              L66.29,38.60
-              L68.83,40.01
-              L70.81,41.99
-              L72.51,45.10
-              L72.79,57.81
-              L72.22,59.51
-              L69.96,62.62
-              L65.73,65.16
-              L52.16,65.16
-              L43.97,70.25
-              L42.56,69.12
-              L42.27,65.44
-              L40.01,64.03
-              L37.19,61.20
-              L35.78,57.81
-              L35.78,46.23
-              Z">
-            </path>
-
+            <path fill-rule="evenodd" d="M67.70,26.45 L57.81,23.63 L50.47,23.63 L45.10,24.76 L35.49,29.56 L30.69,34.08 L27.87,38.04 L24.48,47.36 L24.48,57.25 L25.89,62.62 L28.43,67.70 L31.26,71.38 L38.04,77.59 L37.75,79.85 L35.49,83.52 L35.78,84.37 L38.04,84.37 L46.51,80.98 L56.97,81.55 L65.16,79.57 L73.35,74.77 L80.13,67.14 L82.39,62.33 L83.81,56.68 L83.24,45.10 L78.16,34.93 L73.35,30.13 Z M37.19,42.56 L40.30,39.45 L44.25,38.04 L64.03,38.04 L66.29,38.60 L68.83,40.01 L70.81,41.99 L72.51,45.10 L72.79,57.81 L72.22,59.51 L69.96,62.62 L65.73,65.16 L52.16,65.16 L43.97,70.25 L42.56,69.12 L42.27,65.44 L40.01,64.03 L37.19,61.20 L35.78,57.81 L35.78,46.23 Z"></path>
           </g>
-
         </svg>
 
       </div>
@@ -344,7 +315,7 @@
     </div>
 
 
-    <!-- PHONE MOCKUP -->
+    <!-- PHONE MOCKUP — mirrors the latest app Home screen -->
 
     <div class="phone-wrap">
 
@@ -352,231 +323,217 @@
 
         <div class="phone-screen">
 
-          <div class="phone-status">
+          <div class="app">
 
-            <span>
-              12:53
-            </span>
-
-            <span>
-              5G+ 74%
-            </span>
-
-          </div>
-
-
-          <div class="phone-top">
-
-            <div class="phone-brand">
-
-              <div class="icon">
-
-                <svg viewBox="0 0 60 62">
-
-                  <g transform="translate(-24,-23)">
-
-                    <path
-                      fill-rule="evenodd"
-                      d="M67.70,26.45
-                      L57.81,23.63
-                      L50.47,23.63
-                      L45.10,24.76
-                      L35.49,29.56
-                      L30.69,34.08
-                      L27.87,38.04
-                      L24.48,47.36
-                      L24.48,57.25
-                      L25.89,62.62
-                      L28.43,67.70
-                      L31.26,71.38
-                      L38.04,77.59
-                      L37.75,79.85
-                      L35.49,83.52
-                      L35.78,84.37
-                      L38.04,84.37
-                      L46.51,80.98
-                      L56.97,81.55
-                      L65.16,79.57
-                      L73.35,74.77
-                      L80.13,67.14
-                      L82.39,62.33
-                      L83.81,56.68
-                      L83.24,45.10
-                      L78.16,34.93
-                      L73.35,30.13
-                      Z
-
-                      M37.19,42.56
-                      L40.30,39.45
-                      L44.25,38.04
-                      L64.03,38.04
-                      L66.29,38.60
-                      L68.83,40.01
-                      L70.81,41.99
-                      L72.51,45.10
-                      L72.79,57.81
-                      L72.22,59.51
-                      L69.96,62.62
-                      L65.73,65.16
-                      L52.16,65.16
-                      L43.97,70.25
-                      L42.56,69.12
-                      L42.27,65.44
-                      L40.01,64.03
-                      L37.19,61.20
-                      L35.78,57.81
-                      L35.78,46.23
-                      Z">
-                    </path>
-
-                  </g>
-
-                </svg>
-
-              </div>
-
-
-              <div class="text">
-
-                <b>
-
-                  <span style="color:#EC1561;">
-                    Voice
-                  </span>
-
-                  <span style="color:#3A323F;">
-                    Box
-                  </span>
-
-                </b>
-
-                <span>
-                  Lourdes College TVL Portal
-                </span>
-
-              </div>
-
+            <!-- status bar -->
+            <div class="app-status">
+              <span>8:24</span>
+              <span class="sys"><span class="batt"></span></span>
             </div>
 
-          </div>
+            <div class="app-body">
 
+              <!-- header -->
+              <div class="app-header">
 
-          <div class="phone-body">
-
-            <div class="phone-welcome-icon">
-              💬
-            </div>
-
-            <div class="phone-title">
-
-              <span style="color:#EC1561;">
-                Voice
-              </span>
-
-              <span style="color:#3A323F;">
-                Box
-              </span>
-
-            </div>
-
-            <div class="phone-subtitle">
-              Lourdes College Capstone Project
-            </div>
-
-            <div class="phone-welcome">
-              Welcome, Fritz Vohn!
-            </div>
-
-
-            <div class="phone-cards">
-
-
-              <div class="phone-card">
-
-                <div class="num">
-                  !
+                <div class="app-logo">
+                  <svg viewBox="0 0 60 62">
+                    <g transform="translate(-24,-23)">
+                      <path fill-rule="evenodd" d="M67.70,26.45 L57.81,23.63 L50.47,23.63 L45.10,24.76 L35.49,29.56 L30.69,34.08 L27.87,38.04 L24.48,47.36 L24.48,57.25 L25.89,62.62 L28.43,67.70 L31.26,71.38 L38.04,77.59 L37.75,79.85 L35.49,83.52 L35.78,84.37 L38.04,84.37 L46.51,80.98 L56.97,81.55 L65.16,79.57 L73.35,74.77 L80.13,67.14 L82.39,62.33 L83.81,56.68 L83.24,45.10 L78.16,34.93 L73.35,30.13 Z M37.19,42.56 L40.30,39.45 L44.25,38.04 L64.03,38.04 L66.29,38.60 L68.83,40.01 L70.81,41.99 L72.51,45.10 L72.79,57.81 L72.22,59.51 L69.96,62.62 L65.73,65.16 L52.16,65.16 L43.97,70.25 L42.56,69.12 L42.27,65.44 L40.01,64.03 L37.19,61.20 L35.78,57.81 L35.78,46.23 Z"></path>
+                    </g>
+                  </svg>
                 </div>
 
-                <b>
-                  Complaint
-                </b>
-
-                <p>
-                  Report issues, concerns, or problems
-                  you've experienced.
-                </p>
-
-              </div>
-
-
-              <div class="phone-card">
-
-                <div class="num">
-                  💡
+                <div class="app-brand">
+                  <b><i>Voice</i>Box</b>
+                  <span>Lourdes College Capstone Project</span>
                 </div>
 
-                <b>
-                  Suggestion
-                </b>
+                <div class="app-bell">
 
-                <p>
-                  Share your ideas to help us improve.
-                </p>
+                  <svg viewBox="0 0 108 108" aria-hidden="true">
+                    <defs>
+                      <linearGradient id="vbBellGrad" gradientUnits="userSpaceOnUse"
+                                      x1="35" y1="31" x2="74" y2="79">
+                        <stop offset="0" stop-color="#FFA7D0"/>
+                        <stop offset="0.5" stop-color="#F32B80"/>
+                        <stop offset="1" stop-color="#D9065A"/>
+                      </linearGradient>
+                    </defs>
+                    <path fill="#FCE0EC" d="M54,5A48,48 0,1 0,54 101A48,48 0,1 0,54 5Z"/>
+                    <g transform="rotate(20 54 54)">
+                      <path fill="#E90663" d="M48,73A10,10 0,1 0,66 76L60,70Z"/>
+                      <path fill="#F74895" d="M49,23A7,7 0,1 0,63 23A7,7 0,1 0,49 23Z"/>
+                      <path fill="url(#vbBellGrad)" d="M32,66L35,48C38,22 72,24 77,48L80,66Q91,81 77,82H34Q21,80 32,66Z"/>
+                      <path fill="#FF8DBB" d="M31,71Q54,64 80,73L82,78Q53,70 30,79Z"/>
+                    </g>
+                    <path fill="none" stroke="#F697C0" stroke-width="4" stroke-linecap="round"
+                          d="M21,39Q15,51 20,61M88,36Q99,54 91,69"/>
+                  </svg>
+
+                  <span class="dot"></span>
+
+                </div>
+
+              </div>
+
+
+              <!-- hero card -->
+              <div class="app-hero">
+
+                <div class="l1">Your Voice</div>
+                <div class="l2">Matters</div>
+
+                <p>Report issues, share ideas, and help make our school a better place.</p>
+
+                <img src="assets/megaphone.png"
+                     width="110" height="108"
+                     alt="" aria-hidden="true">
+
+              </div>
+
+
+              <!-- stats -->
+              <div class="app-stats">
+
+                <div class="app-stat">
+                  <div class="ic"><svg class="ico"><use href="#vb-mail"/></svg></div>
+                  <div class="lbl">Resolved</div>
+                  <div class="val" id="phoneStatResolved">63%</div>
+                </div>
+
+                <div class="app-stat">
+                  <div class="ic"><svg class="ico"><use href="#vb-mic"/></svg></div>
+                  <div class="lbl">Voices</div>
+                  <div class="val" id="phoneStatVoices">24</div>
+                </div>
+
+                <div class="app-stat">
+                  <div class="ic"><svg class="ico"><use href="#vb-alert"/></svg></div>
+                  <div class="lbl">Avg. Response</div>
+                  <div class="val" id="phoneStatAvg">3.4 days</div>
+                </div>
+
+                <div class="app-stat">
+                  <div class="ic"><svg class="ico"><use href="#vb-users"/></svg></div>
+                  <div class="lbl">Total Users</div>
+                  <div class="val" id="phoneStatUsers">13</div>
+                </div>
+
+              </div>
+
+
+              <!-- quick actions -->
+              <div class="app-card app-quick">
+
+                <div class="app-title">
+                  <div class="ic"><svg class="ico"><use href="#vb-bolt"/></svg></div>
+                  <b>Quick Actions</b>
+                </div>
+
+                <div class="app-actions">
+
+                  <div class="phone-card complaint">
+                    <div class="row">
+                      <div class="ic"><svg class="ico"><use href="#vb-alert"/></svg></div>
+                      <b>File a<br>Complaint</b>
+                    </div>
+                    <p>Report issues, concerns, or problems you’ve experienced.</p>
+                    <div class="go"><svg class="ico"><use href="#vb-arrow"/></svg></div>
+                  </div>
+
+                  <div class="phone-card suggestion">
+                    <div class="row">
+                      <div class="ic"><svg class="ico"><use href="#vb-bulb"/></svg></div>
+                      <b>Share a<br>Suggestion</b>
+                    </div>
+                    <p>Share your ideas to help us improve.</p>
+                    <div class="go"><svg class="ico"><use href="#vb-arrow"/></svg></div>
+                  </div>
+
+                </div>
+
+              </div>
+
+
+              <!-- recent activity (sample entries) -->
+              <div class="app-card app-recent">
+
+                <div class="app-title">
+                  <div class="ic"><svg class="ico"><use href="#vb-clock"/></svg></div>
+                  <b>Recent Activity</b>
+                </div>
+
+                <div class="app-rows">
+
+                  <div class="app-row">
+                    <div class="ic"><svg class="ico"><use href="#vb-alert"/></svg></div>
+                    <div class="tx">
+                      <b>Broken electric fan in Room 204</b>
+                      <span>Complaint · Submitted 4 days ago</span>
+                    </div>
+                    <span class="app-pill reviewed">Reviewed</span>
+                    <svg class="ico chev"><use href="#vb-chev"/></svg>
+                  </div>
+
+                  <div class="app-row">
+                    <div class="ic"><svg class="ico"><use href="#vb-bulb"/></svg></div>
+                    <div class="tx">
+                      <b>More seats at the school canteen</b>
+                      <span>Suggestion · Submitted 6 days ago</span>
+                    </div>
+                    <span class="app-pill reviewed">Reviewed</span>
+                    <svg class="ico chev"><use href="#vb-chev"/></svg>
+                  </div>
+
+                  <div class="app-row">
+                    <div class="ic"><svg class="ico"><use href="#vb-alert"/></svg></div>
+                    <div class="tx">
+                      <b>Slow Wi-Fi in the ICT lab</b>
+                      <span>Complaint · Submitted 6 days ago</span>
+                    </div>
+                    <span class="app-pill resolved">Resolved</span>
+                    <svg class="ico chev"><use href="#vb-chev"/></svg>
+                  </div>
+
+                </div>
+
+              </div>
+
+
+              <!-- motivational banner -->
+              <div class="app-banner">
+
+                <svg class="ico heart"><use href="#vb-heart"/></svg>
+
+                <div class="tx">
+                  <b>Together We Build a Better School</b>
+                  <span>Your feedback creates real change.</span>
+                </div>
+
+                <svg class="ico heart-o"><use href="#vb-heart-o"/></svg>
 
               </div>
 
             </div>
 
 
-            <div class="phone-banner">
-
-              <div>
-
-                <b>
-                  ♥ Your Voice Matters
-                </b>
-
-                <p>
-                  Every submission helps the school improve.
-                </p>
-
-              </div>
-
-            </div>
-
-
+            <!-- floating bottom navigation -->
             <div class="phone-nav">
 
               <div class="active">
-
-                <div class="ic">
-                  🏠
-                </div>
-
+                <span class="ic"><svg><use href="#vb-home"/></svg></span>
                 Home
-
               </div>
 
-
               <div>
-
-                <div class="ic">
-                  📋
-                </div>
-
+                <span class="ic"><svg><use href="#vb-list"/></svg></span>
                 My Submissions
-
               </div>
 
-
               <div>
-
-                <div class="ic">
-                  👤
-                </div>
-
+                <span class="ic"><svg><use href="#vb-person"/></svg></span>
                 Profile
-
               </div>
 
             </div>
@@ -1057,65 +1014,9 @@
       <div class="logo-icon">
 
         <svg viewBox="0 0 60 62">
-
           <g transform="translate(-24,-23)">
-
-            <path
-              fill-rule="evenodd"
-              d="M67.70,26.45
-              L57.81,23.63
-              L50.47,23.63
-              L45.10,24.76
-              L35.49,29.56
-              L30.69,34.08
-              L27.87,38.04
-              L24.48,47.36
-              L24.48,57.25
-              L25.89,62.62
-              L28.43,67.70
-              L31.26,71.38
-              L38.04,77.59
-              L37.75,79.85
-              L35.49,83.52
-              L35.78,84.37
-              L38.04,84.37
-              L46.51,80.98
-              L56.97,81.55
-              L65.16,79.57
-              L73.35,74.77
-              L80.13,67.14
-              L82.39,62.33
-              L83.81,56.68
-              L83.24,45.10
-              L78.16,34.93
-              L73.35,30.13
-              Z
-
-              M37.19,42.56
-              L40.30,39.45
-              L44.25,38.04
-              L64.03,38.04
-              L66.29,38.60
-              L68.83,40.01
-              L70.81,41.99
-              L72.51,45.10
-              L72.79,57.81
-              L72.22,59.51
-              L69.96,62.62
-              L65.73,65.16
-              L52.16,65.16
-              L43.97,70.25
-              L42.56,69.12
-              L42.27,65.44
-              L40.01,64.03
-              L37.19,61.20
-              L35.78,57.81
-              L35.78,46.23
-              Z">
-            </path>
-
+            <path fill-rule="evenodd" d="M67.70,26.45 L57.81,23.63 L50.47,23.63 L45.10,24.76 L35.49,29.56 L30.69,34.08 L27.87,38.04 L24.48,47.36 L24.48,57.25 L25.89,62.62 L28.43,67.70 L31.26,71.38 L38.04,77.59 L37.75,79.85 L35.49,83.52 L35.78,84.37 L38.04,84.37 L46.51,80.98 L56.97,81.55 L65.16,79.57 L73.35,74.77 L80.13,67.14 L82.39,62.33 L83.81,56.68 L83.24,45.10 L78.16,34.93 L73.35,30.13 Z M37.19,42.56 L40.30,39.45 L44.25,38.04 L64.03,38.04 L66.29,38.60 L68.83,40.01 L70.81,41.99 L72.51,45.10 L72.79,57.81 L72.22,59.51 L69.96,62.62 L65.73,65.16 L52.16,65.16 L43.97,70.25 L42.56,69.12 L42.27,65.44 L40.01,64.03 L37.19,61.20 L35.78,57.81 L35.78,46.23 Z"></path>
           </g>
-
         </svg>
 
       </div>
@@ -1225,6 +1126,26 @@ async function loadLandingStats() {
       "statAvgResolution"
     ).textContent =
       stats.avg_resolution_days;
+
+
+    /* Phone mockup: same live numbers, shown the way the app shows them */
+
+    document.getElementById(
+      "phoneStatResolved"
+    ).textContent =
+      stats.resolved_rate + "%";
+
+
+    document.getElementById(
+      "phoneStatVoices"
+    ).textContent =
+      stats.total_submissions;
+
+
+    document.getElementById(
+      "phoneStatAvg"
+    ).textContent =
+      stats.avg_resolution_days + " days";
 
 
   } catch (e) {
